@@ -1,0 +1,23 @@
+= libusb binding for Ruby
+
+== Author
+
+Tanaka Akira <akr@fsij.org>
+
+== License
+
+LGPL
+
+== Feature
+
+* direct (non-rubyish) binding
+
+== Planned Feature
+
+* rubyish interface
+
+== Install
+
+  % ruby extconf.rb 
+  % make
+  % make install
