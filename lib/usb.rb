@@ -146,21 +146,32 @@ module USB
       else
         vendor_id = self.descriptor_idVendor
         product_id = self.descriptor_idProduct
-        manufacturer = product = serial_number = nil
-        self.open {|h|
-          manufacturer = h.get_string_simple(self.descriptor_iManufacturer) if self.descriptor_iManufacturer != 0
-          product = h.get_string_simple(self.descriptor_iProduct) if self.descriptor_iProduct != 0
-          serial_number = h.get_string_simple(self.descriptor_iSerialNumber) if self.descriptor_iSerialNumber != 0
-        }
-        prod = [manufacturer, product, serial_number].compact.join(" ")
+        prod = [self.manufacturer, self.product, self.serial_number].compact.join(" ")
         if self.descriptor_bDeviceClass == USB::USB_CLASS_PER_INTERFACE
-          devclass = self.interface_descriptors.map {|i| USB.devsubclass_string(i.bInterfaceClass, i.bInterfaceSubClass) }.join(", ")
+          devclass = self.interface_descriptors.map {|i|
+            USB.devsubclass_string(i.bInterfaceClass, i.bInterfaceSubClass)
+          }.join(", ")
         else
           devclass = USB.devsubclass_string(self.descriptor_bDeviceClass, self.descriptor_bDeviceSubClass)
         end
 
         "\#<#{self.class} #{self.bus.dirname}/#{self.filename} #{"%04x:%04x" % [vendor_id, product_id]} #{prod} (#{devclass})>"
       end
+    end
+
+    def manufacturer
+      return @manufacturer if defined? @manufacturer
+      @manufacturer = self.open {|h| h.get_string_simple(self.descriptor_iManufacturer) }
+    end
+
+    def product
+      return @product if defined? @product
+      @product = self.open {|h| h.get_string_simple(self.descriptor_iProduct) }
+    end
+
+    def serial_number
+      return @serial_number if defined? @serial_number
+      @serial_number = self.open {|h| h.get_string_simple(self.descriptor_iSerialNumber) }
     end
 
     def open
