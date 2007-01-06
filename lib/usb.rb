@@ -42,6 +42,18 @@ module USB
     USB.busses.map {|b| b.devices }.flatten
   end
 
+  def USB.config_descriptors
+    USB.devices.map {|d| d.config }.flatten
+  end
+
+  def USB.interfaces
+    USB.config_descriptors.map {|d| d.interface }.flatten
+  end
+
+  def USB.interface_descriptors
+    USB.interfaces.map {|d| d.altsetting }.flatten
+  end
+
   class Bus
     def inspect
       if self.revoked?
@@ -71,35 +83,66 @@ module USB
     end
   end
 
+  def USB.devclass_string(n)
+    case n
+    when USB::USB_CLASS_PER_INTERFACE then return 'ClassPerInterface'
+    when USB::USB_CLASS_AUDIO then return 'Audio'
+    when USB::USB_CLASS_COMM then return 'Comm'
+    when USB::USB_CLASS_HID then return 'HID'
+    when USB::USB_CLASS_PRINTER then return 'Printer'
+    when USB::USB_CLASS_PTP then return 'PTP'
+    when USB::USB_CLASS_MASS_STORAGE then return 'MassStorage'
+    when USB::USB_CLASS_HUB then return 'Hub'
+    when USB::USB_CLASS_DATA then return 'Data'
+    when USB::USB_CLASS_VENDOR_SPEC then return 'Vendor'
+    end
+    nil
+  end
+
+  def USB.subclass_string(devclass, subclass)
+    case devclass
+    when USB::USB_CLASS_PER_INTERFACE
+      case subclass
+      when 0 then return ""
+      end
+    when USB::USB_CLASS_MASS_STORAGE
+      case subclass
+      when 0x01 then return "RBC"
+      when 0x02 then return "ATAPI"
+      when 0x03 then return "QIC-157"
+      when 0x04 then return "UFI"
+      when 0x05 then return "SFF-8070i"
+      when 0x06 then return "SCSI"
+      end
+    when USB::USB_CLASS_HUB
+      case subclass
+      when 0 then return ""
+      end
+    end
+    nil
+  end
+
+  def USB.devsubclass_string(c, s)
+    result = USB.devclass_string(c)
+    if result
+      subclass = USB.subclass_string(c, s)
+      if subclass
+        result << "/" << subclass if subclass != ''
+      else
+        result << "/" << "Unknown(#{s})"
+      end
+    else
+      result = "Unknown(#{c}/#{s})"
+    end
+    result
+  end
+
   class Device
     def inspect
       if self.revoked?
         "\#<#{self.class} revoked>"
       else
-        case self.descriptor_bDeviceClass
-        when USB::USB_CLASS_PER_INTERFACE
-          devclass = 'ClassPerInterface'
-        when USB::USB_CLASS_AUDIO
-          devclass = 'Audio'
-        when USB::USB_CLASS_COMM
-          devclass = 'Comm'
-        when USB::USB_CLASS_HID
-          devclass = 'HID'
-        when USB::USB_CLASS_PRINTER
-          devclass = 'Printer'
-        when USB::USB_CLASS_PTP
-          devclass = 'PTP'
-        when USB::USB_CLASS_MASS_STORAGE
-          devclass = 'MassStorage'
-        when USB::USB_CLASS_HUB
-          devclass = 'Hub'
-        when USB::USB_CLASS_DATA
-          devclass = 'Data'
-        when USB::USB_CLASS_VENDOR_SPEC
-          devclass = 'Vendor'
-        else
-          devclass = "Unknown(#{self.descriptor_bDeviceClass})"
-        end
+        devclass = USB.devsubclass_string(self.descriptor_bDeviceClass, self.descriptor_bDeviceSubClass)
         "\#<#{self.class} #{self.bus.dirname}/#{self.filename} #{devclass}>"
       end
     end
@@ -121,6 +164,17 @@ module USB
         "\#<#{self.class} revoked>"
       else
         "\#<#{self.class}>"
+      end
+    end
+  end
+
+  class InterfaceDescriptor
+    def inspect
+      if self.revoked?
+        "\#<#{self.class} revoked>"
+      else
+        devclass = USB.devsubclass_string(self.bInterfaceClass, self.bInterfaceSubClass)
+        "\#<#{self.class} #{devclass}>"
       end
     end
   end
