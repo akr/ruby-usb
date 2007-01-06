@@ -66,7 +66,7 @@ static VALUE rusb_dev_handle_new(usb_dev_handle *h);
     rusb_ ## c_name ## _t *d = check_usb_ ## c_name(v); \
     if (!d) { \
       rb_raise(rb_eArgError, "revoked USB::" #ruby_name); \
-    }           \
+    } \
     return d; \
   } \
   static struct usb_ ## c_name *get_usb_ ## c_name(VALUE v) \
