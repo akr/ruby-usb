@@ -82,7 +82,7 @@ define_usb_struct(bus, Bus)
 define_usb_struct(device, Device)
 define_usb_struct(config_descriptor, Configuration)
 define_usb_struct(interface, Interface)
-define_usb_struct(interface_descriptor, InterfaceDescriptor)
+define_usb_struct(interface_descriptor, Setting)
 define_usb_struct(endpoint_descriptor, EndpointDescriptor)
 
 static int mark_data_i(st_data_t key, st_data_t val, st_data_t arg)
@@ -337,48 +337,48 @@ rusb_interface_altsettings(VALUE v)
   return altsetting;
 }
 
-/* -------- USB::InterfaceDescriptor -------- */
+/* -------- USB::Setting -------- */
 
-/* USB::InterfaceDescriptor#revoked? */
+/* USB::Setting#revoked? */
 static VALUE
-rusb_ifdesc_revoked_p(VALUE v)
+rusb_setting_revoked_p(VALUE v)
 {
   return RTEST(!check_usb_interface_descriptor(v));
 }
 
 /* USB::Interface#interface */
-static VALUE rusb_ifdesc_interface(VALUE v) { return get_rusb_interface_descriptor(v)->parent; }
+static VALUE rusb_setting_interface(VALUE v) { return get_rusb_interface_descriptor(v)->parent; }
 
-/* USB::InterfaceDescriptor#bLength */
-static VALUE rusb_ifdesc_bLength(VALUE v) { return INT2FIX(get_usb_interface_descriptor(v)->bLength); }
+/* USB::Setting#bLength */
+static VALUE rusb_setting_bLength(VALUE v) { return INT2FIX(get_usb_interface_descriptor(v)->bLength); }
 
-/* USB::InterfaceDescriptor#bDescriptorType */
-static VALUE rusb_ifdesc_bDescriptorType(VALUE v) { return INT2FIX(get_usb_interface_descriptor(v)->bDescriptorType); }
+/* USB::Setting#bDescriptorType */
+static VALUE rusb_setting_bDescriptorType(VALUE v) { return INT2FIX(get_usb_interface_descriptor(v)->bDescriptorType); }
 
-/* USB::InterfaceDescriptor#bInterfaceNumber */
-static VALUE rusb_ifdesc_bInterfaceNumber(VALUE v) { return INT2FIX(get_usb_interface_descriptor(v)->bInterfaceNumber); }
+/* USB::Setting#bInterfaceNumber */
+static VALUE rusb_setting_bInterfaceNumber(VALUE v) { return INT2FIX(get_usb_interface_descriptor(v)->bInterfaceNumber); }
 
-/* USB::InterfaceDescriptor#bAlternateSetting */
-static VALUE rusb_ifdesc_bAlternateSetting(VALUE v) { return INT2FIX(get_usb_interface_descriptor(v)->bAlternateSetting); }
+/* USB::Setting#bAlternateSetting */
+static VALUE rusb_setting_bAlternateSetting(VALUE v) { return INT2FIX(get_usb_interface_descriptor(v)->bAlternateSetting); }
 
-/* USB::InterfaceDescriptor#bNumEndpoints */
-static VALUE rusb_ifdesc_bNumEndpoints(VALUE v) { return INT2FIX(get_usb_interface_descriptor(v)->bNumEndpoints); }
+/* USB::Setting#bNumEndpoints */
+static VALUE rusb_setting_bNumEndpoints(VALUE v) { return INT2FIX(get_usb_interface_descriptor(v)->bNumEndpoints); }
 
-/* USB::InterfaceDescriptor#bInterfaceClass */
-static VALUE rusb_ifdesc_bInterfaceClass(VALUE v) { return INT2FIX(get_usb_interface_descriptor(v)->bInterfaceClass); }
+/* USB::Setting#bInterfaceClass */
+static VALUE rusb_setting_bInterfaceClass(VALUE v) { return INT2FIX(get_usb_interface_descriptor(v)->bInterfaceClass); }
 
-/* USB::InterfaceDescriptor#bInterfaceSubClass */
-static VALUE rusb_ifdesc_bInterfaceSubClass(VALUE v) { return INT2FIX(get_usb_interface_descriptor(v)->bInterfaceSubClass); }
+/* USB::Setting#bInterfaceSubClass */
+static VALUE rusb_setting_bInterfaceSubClass(VALUE v) { return INT2FIX(get_usb_interface_descriptor(v)->bInterfaceSubClass); }
 
-/* USB::InterfaceDescriptor#bInterfaceProtocol */
-static VALUE rusb_ifdesc_bInterfaceProtocol(VALUE v) { return INT2FIX(get_usb_interface_descriptor(v)->bInterfaceProtocol); }
+/* USB::Setting#bInterfaceProtocol */
+static VALUE rusb_setting_bInterfaceProtocol(VALUE v) { return INT2FIX(get_usb_interface_descriptor(v)->bInterfaceProtocol); }
 
-/* USB::InterfaceDescriptor#iInterface */
-static VALUE rusb_ifdesc_iInterface(VALUE v) { return INT2FIX(get_usb_interface_descriptor(v)->iInterface); }
+/* USB::Setting#iInterface */
+static VALUE rusb_setting_iInterface(VALUE v) { return INT2FIX(get_usb_interface_descriptor(v)->iInterface); }
 
-/* USB::InterfaceDescriptor#endpoints */
+/* USB::Setting#endpoints */
 static VALUE
-rusb_ifdesc_endpoints(VALUE v)
+rusb_setting_endpoints(VALUE v)
 {
   struct usb_interface_descriptor *p = get_usb_interface_descriptor(v);
   int i;
@@ -397,8 +397,8 @@ rusb_epdesc_revoked_p(VALUE v)
   return RTEST(!check_usb_endpoint_descriptor(v));
 }
 
-/* USB::EndpointDescriptor#interface_descriptor */
-static VALUE rusb_epdesc_interface_descriptor(VALUE v) { return get_rusb_endpoint_descriptor(v)->parent; }
+/* USB::EndpointDescriptor#setting */
+static VALUE rusb_epdesc_setting(VALUE v) { return get_rusb_endpoint_descriptor(v)->parent; }
 
 /* USB::EndpointDescriptor#bLength */
 static VALUE rusb_epdesc_bLength(VALUE v) { return INT2FIX(get_usb_endpoint_descriptor(v)->bLength); }
@@ -813,7 +813,7 @@ Init_usb()
   rb_cUSB_Interface = rb_define_class_under(rb_cUSB, "Interface", rb_cData);
 
   interface_descriptor_objects = st_init_numtable();
-  rb_cUSB_InterfaceDescriptor = rb_define_class_under(rb_cUSB, "InterfaceDescriptor", rb_cData);
+  rb_cUSB_Setting = rb_define_class_under(rb_cUSB, "Setting", rb_cData);
 
   endpoint_descriptor_objects = st_init_numtable();
   rb_cUSB_EndpointDescriptor = rb_define_class_under(rb_cUSB, "EndpointDescriptor", rb_cData);
@@ -880,21 +880,21 @@ Init_usb()
   rb_define_method(rb_cUSB_Interface, "num_altsetting", rusb_interface_num_altsetting, 0);
   rb_define_method(rb_cUSB_Interface, "altsettings", rusb_interface_altsettings, 0);
 
-  rb_define_method(rb_cUSB_InterfaceDescriptor, "revoked?", rusb_ifdesc_revoked_p, 0);
-  rb_define_method(rb_cUSB_InterfaceDescriptor, "interface", rusb_ifdesc_interface, 0);
-  rb_define_method(rb_cUSB_InterfaceDescriptor, "bLength", rusb_ifdesc_bLength, 0);
-  rb_define_method(rb_cUSB_InterfaceDescriptor, "bDescriptorType", rusb_ifdesc_bDescriptorType, 0);
-  rb_define_method(rb_cUSB_InterfaceDescriptor, "bInterfaceNumber", rusb_ifdesc_bInterfaceNumber, 0);
-  rb_define_method(rb_cUSB_InterfaceDescriptor, "bAlternateSetting", rusb_ifdesc_bAlternateSetting, 0);
-  rb_define_method(rb_cUSB_InterfaceDescriptor, "bNumEndpoints", rusb_ifdesc_bNumEndpoints, 0);
-  rb_define_method(rb_cUSB_InterfaceDescriptor, "bInterfaceClass", rusb_ifdesc_bInterfaceClass, 0);
-  rb_define_method(rb_cUSB_InterfaceDescriptor, "bInterfaceSubClass", rusb_ifdesc_bInterfaceSubClass, 0);
-  rb_define_method(rb_cUSB_InterfaceDescriptor, "bInterfaceProtocol", rusb_ifdesc_bInterfaceProtocol, 0);
-  rb_define_method(rb_cUSB_InterfaceDescriptor, "iInterface", rusb_ifdesc_iInterface, 0);
-  rb_define_method(rb_cUSB_InterfaceDescriptor, "endpoints", rusb_ifdesc_endpoints, 0);
+  rb_define_method(rb_cUSB_Setting, "revoked?", rusb_setting_revoked_p, 0);
+  rb_define_method(rb_cUSB_Setting, "interface", rusb_setting_interface, 0);
+  rb_define_method(rb_cUSB_Setting, "bLength", rusb_setting_bLength, 0);
+  rb_define_method(rb_cUSB_Setting, "bDescriptorType", rusb_setting_bDescriptorType, 0);
+  rb_define_method(rb_cUSB_Setting, "bInterfaceNumber", rusb_setting_bInterfaceNumber, 0);
+  rb_define_method(rb_cUSB_Setting, "bAlternateSetting", rusb_setting_bAlternateSetting, 0);
+  rb_define_method(rb_cUSB_Setting, "bNumEndpoints", rusb_setting_bNumEndpoints, 0);
+  rb_define_method(rb_cUSB_Setting, "bInterfaceClass", rusb_setting_bInterfaceClass, 0);
+  rb_define_method(rb_cUSB_Setting, "bInterfaceSubClass", rusb_setting_bInterfaceSubClass, 0);
+  rb_define_method(rb_cUSB_Setting, "bInterfaceProtocol", rusb_setting_bInterfaceProtocol, 0);
+  rb_define_method(rb_cUSB_Setting, "iInterface", rusb_setting_iInterface, 0);
+  rb_define_method(rb_cUSB_Setting, "endpoints", rusb_setting_endpoints, 0);
 
   rb_define_method(rb_cUSB_EndpointDescriptor, "revoked?", rusb_epdesc_revoked_p, 0);
-  rb_define_method(rb_cUSB_EndpointDescriptor, "interface_descriptor", rusb_epdesc_interface_descriptor, 0);
+  rb_define_method(rb_cUSB_EndpointDescriptor, "setting", rusb_epdesc_setting, 0);
   rb_define_method(rb_cUSB_EndpointDescriptor, "bLength", rusb_epdesc_bLength, 0);
   rb_define_method(rb_cUSB_EndpointDescriptor, "bDescriptorType", rusb_epdesc_bDescriptorType, 0);
   rb_define_method(rb_cUSB_EndpointDescriptor, "bEndpointAddress", rusb_epdesc_bEndpointAddress, 0);

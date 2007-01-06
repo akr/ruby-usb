@@ -32,7 +32,7 @@ module USB
   def USB.devices() USB.busses.map {|b| b.devices }.flatten end
   def USB.configurations() USB.devices.map {|d| d.configurations }.flatten end
   def USB.interfaces() USB.configurations.map {|d| d.interfaces }.flatten end
-  def USB.interface_descriptors() USB.interfaces.map {|d| d.altsettings }.flatten end
+  def USB.settings() USB.interfaces.map {|d| d.altsettings }.flatten end
 
   def USB.find_bus(n)
     bus = USB.first_bus
@@ -64,7 +64,7 @@ module USB
 
     def configurations() self.devices.map {|d| d.configurations }.flatten end
     def interfaces() self.configurations.map {|d| d.interfaces }.flatten end
-    def interface_descriptors() self.interfaces.map {|d| d.altsettings }.flatten end
+    def settings() self.interfaces.map {|d| d.altsettings }.flatten end
 
     def find_device(n)
       device = self.first_device
@@ -148,7 +148,7 @@ module USB
         product_id = self.descriptor_idProduct
         prod = [self.manufacturer, self.product, self.serial_number].compact.join(" ")
         if self.descriptor_bDeviceClass == USB::USB_CLASS_PER_INTERFACE
-          devclass = self.interface_descriptors.map {|i|
+          devclass = self.settings.map {|i|
             USB.devsubclass_string(i.bInterfaceClass, i.bInterfaceSubClass)
           }.join(", ")
         else
@@ -188,7 +188,7 @@ module USB
     end
 
     def interfaces() self.configurations.map {|d| d.interfaces }.flatten end
-    def interface_descriptors() self.interfaces.map {|d| d.altsettings }.flatten end
+    def settings() self.interfaces.map {|d| d.altsettings }.flatten end
   end
 
   class Configuration
@@ -205,7 +205,7 @@ module USB
       @configuration = self.device.open {|h| h.get_string_simple(self.iConfiguration) }
     end
 
-    def interface_descriptors() self.interfaces.map {|d| d.altsettings }.flatten end
+    def settings() self.interfaces.map {|d| d.altsettings }.flatten end
 
     def bus() self.device.bus end
   end
@@ -223,7 +223,7 @@ module USB
     def device() self.configuration.device end
   end
 
-  class InterfaceDescriptor
+  class Setting
     def inspect
       if self.revoked?
         "\#<#{self.class} revoked>"
@@ -239,10 +239,10 @@ module USB
   end
 
   class EndpointDescriptor
-    def bus() self.interface_descriptor.interface.configuration.device.bus end
-    def device() self.interface_descriptor.interface.configuration.device end
-    def configuration() self.interface_descriptor.interface.configuration end
-    def interface() self.interface_descriptor.interface end
+    def bus() self.setting.interface.configuration.device.bus end
+    def device() self.setting.interface.configuration.device end
+    def configuration() self.setting.interface.configuration end
+    def interface() self.setting.interface end
   end
 
   class DevHandle
