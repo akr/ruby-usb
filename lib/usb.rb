@@ -78,67 +78,75 @@ module USB
     end
   end
 
-  def USB.devclass_string(n)
-    # http://www.usb.org/developers/defined_class
-    case n
-    when USB::USB_CLASS_PER_INTERFACE then return 'ClassPerInterface'
-    when USB::USB_CLASS_AUDIO then return 'Audio'
-    when USB::USB_CLASS_COMM then return 'Comm'
-    when USB::USB_CLASS_HID then return 'HID'
-    when 0x05 then return 'Physical'
-    when USB::USB_CLASS_PTP then return 'Image'
-    when USB::USB_CLASS_PRINTER then return 'Printer'
-    when USB::USB_CLASS_MASS_STORAGE then return 'MassStorage'
-    when USB::USB_CLASS_HUB then return 'Hub'
-    when USB::USB_CLASS_DATA then return 'CDC-Data'
-    when 0x0b then return 'SmartCard'
-    when 0x0d then return 'ContentSecurity'
-    when 0x0e then return 'Video'
-    when 0xdc then return 'DiagnosticDevice'
-    when 0xe0 then return 'WirelessController'
-    when 0xef then return 'Miscellaneous'
-    when 0xfe then return 'ApplicationSpecific'
-    when USB::USB_CLASS_VENDOR_SPEC then return 'VendorSpecific'
-    end
-    nil
-  end
-
-  def USB.subclass_string(devclass, subclass)
-    case devclass
-    when USB::USB_CLASS_PER_INTERFACE
-      case subclass
-      when 0 then return ""
-      end
-    when USB::USB_CLASS_MASS_STORAGE
-      case subclass
-      when 0x01 then return "RBC"
-      when 0x02 then return "ATAPI"
-      when 0x03 then return "QIC-157"
-      when 0x04 then return "UFI"
-      when 0x05 then return "SFF-8070i"
-      when 0x06 then return "SCSI"
-      end
-    when USB::USB_CLASS_HUB
-      case subclass
-      when 0 then return ""
-      end
-    end
-    nil
-  end
-
-  def USB.dev_string(c, s)
-    result = USB.devclass_string(c)
-    if result
-      subclass = USB.subclass_string(c, s)
-      if subclass
-        result << "/" << subclass if subclass != ''
-      else
-        result << "/" << "Unknown(#{s})"
-      end
+  # http://www.usb.org/developers/defined_class
+  CLASS_CODES = [
+    [0x01, nil, nil, "Audio"],
+    [0x02, nil, nil, "Comm"],
+    [0x03, nil, nil, "HID"],
+    [0x05, nil, nil, "Physical"],
+    [0x06, 0x01, 0x01, "StillImaging"],
+    [0x06, nil, nil, "Image"],
+    [0x07, nil, nil, "Printer"],
+    [0x08, 0x01, nil, "MassStorage RBC Bluk-Only"],
+    [0x08, 0x02, 0x50, "MassStorage ATAPI Bluk-Only"],
+    [0x08, 0x03, 0x50, "MassStorage QIC-157 Bluk-Only"],
+    [0x08, 0x04, nil, "MassStorage UFI"],
+    [0x08, 0x05, 0x50, "MassStorage SFF-8070i Bluk-Only"],
+    [0x08, 0x06, 0x50, "MassStorage SCSI Bluk-Only"],
+    [0x08, nil, nil, "MassStorage"],
+    [0x09, 0x00, 0x00, "Full speed Hub"],
+    [0x09, 0x00, 0x01, "Hi-speed Hub with single TT"],
+    [0x09, 0x00, 0x02, "Hi-speed Hub with multiple TTs"],
+    [0x09, nil, nil, "Hub"],
+    [0x0a, nil, nil, "CDC"],
+    [0x0b, nil, nil, "SmartCard"],
+    [0x0d, 0x00, 0x00, "ContentSecurity"],
+    [0x0e, nil, nil, "Video"],
+    [0xdc, 0x01, 0x01, "Diagnostic USB2"],
+    [0xdc, nil, nil, "Diagnostic"],
+    [0xe0, 0x01, 0x01, "Bluetooth"],
+    [0xe0, 0x01, 0x02, "UWB"],
+    [0xe0, 0x01, 0x03, "RemoteNDIS"],
+    [0xe0, 0x02, 0x01, "Host Wire Adapter Control/Data"],
+    [0xe0, 0x02, 0x02, "Device Wire Adapter Control/Data"],
+    [0xe0, 0x02, 0x03, "Device Wire Adapter Isochronous"],
+    [0xe0, nil, nil, "Wireless Controller"],
+    [0xef, 0x01, 0x01, "Active Sync"],
+    [0xef, 0x01, 0x02, "Palm Sync"],
+    [0xef, 0x02, 0x01, "Interface Association Descriptor"],
+    [0xef, 0x02, 0x02, "Wire Adapter Multifunction Peripheral"],
+    [0xef, 0x03, 0x01, "Cable Based Association Framework"],
+    [0xef, nil, nil, "Miscellaneous"],
+    [0xfe, 0x01, 0x01, "Device Firmware Upgrade"],
+    [0xfe, 0x02, 0x00, "IRDA Bridge"],
+    [0xfe, 0x03, 0x00, "USB Test and Measurement"],
+    [0xfe, 0x03, 0x01, "USB Test and Measurement (USBTMC USB488)"],
+    [0xfe, nil, nil, "Application Specific"],
+    [0xff, nil, nil, "Vendor specific"],
+  ]
+  CLASS_CODES_HASH1 = {}
+  CLASS_CODES_HASH2 = {}
+  CLASS_CODES_HASH3 = {}
+  CLASS_CODES.each {|base_class, sub_class, protocol, desc|
+    if protocol
+      CLASS_CODES_HASH3[[base_class, sub_class, protocol]] = desc
+    elsif sub_class
+      CLASS_CODES_HASH2[[base_class, sub_class]] = desc
     else
-      result = "Unknown(#{c}/#{s})"
+      CLASS_CODES_HASH1[base_class] = desc
     end
-    result
+  }
+
+  def USB.dev_string(base_class, sub_class, protocol)
+    if desc = CLASS_CODES_HASH3[[base_class, sub_class, protocol]]
+      desc
+    elsif desc = CLASS_CODES_HASH2[[base_class, sub_class]]
+      desc + " (%02x)" % [protocol]
+    elsif desc = CLASS_CODES_HASH1[base_class]
+      desc + " (%02x,%02x)" % [sub_class, protocol]
+    else
+      "Unkonwn(%02x,%02x,%02x)" % [base_class, sub_class, protocol]
+    end
   end
 
   class Device
@@ -154,10 +162,10 @@ module USB
         attrs << self.serial_number
         if self.bDeviceClass == USB::USB_CLASS_PER_INTERFACE
           devclass = self.settings.map {|i|
-            USB.dev_string(i.bInterfaceClass, i.bInterfaceSubClass)
+            USB.dev_string(i.bInterfaceClass, i.bInterfaceSubClass, i.bInterfaceProtocol)
           }.join(", ")
         else
-          devclass = USB.dev_string(self.bDeviceClass, self.bDeviceSubClass)
+          devclass = USB.dev_string(self.bDeviceClass, self.bDeviceSubClass, self.bDeviceProtocol)
         end
         attrs << "(#{devclass})"
 
@@ -247,7 +255,7 @@ module USB
       else
         attrs = []
         attrs << self.bInterfaceNumber.to_s
-        devclass = USB.dev_string(self.bInterfaceClass, self.bInterfaceSubClass)
+        devclass = USB.dev_string(self.bInterfaceClass, self.bInterfaceSubClass, self.bInterfaceProtocol)
         attrs << devclass
         desc = self.description
         attrs << desc if desc != '?'
