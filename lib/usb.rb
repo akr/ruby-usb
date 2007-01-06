@@ -19,6 +19,16 @@
 require 'usb.so'
 
 module USB
+  def USB.busses
+    result = []
+    bus = USB.get_busses
+    while bus
+      result << bus
+      bus = bus.next
+    end
+    result.sort_by {|b| b.dirname }
+  end
+
   def USB.find_bus(n)
     bus = USB.get_busses
     while bus
@@ -28,9 +38,23 @@ module USB
     return nil
   end
 
+  def USB.devices
+    USB.busses.map {|b| b.devices }.flatten
+  end
+
   class Bus
+    def devices
+      result = []
+      device = self.get_devices
+      while device
+        result << device
+        device = device.next
+      end
+      result.sort_by {|d| d.filename }
+    end
+
     def find_device(n)
-      device = self.devices
+      device = self.get_devices
       while device
         return device if n == device.filename.to_i
         device = device.next
