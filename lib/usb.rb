@@ -238,7 +238,7 @@ module USB
     def configuration() self.interface.configuration end
   end
 
-  class EndpointDescriptor
+  class Endpoint
     def bus() self.setting.interface.configuration.device.bus end
     def device() self.setting.interface.configuration.device end
     def configuration() self.setting.interface.configuration end

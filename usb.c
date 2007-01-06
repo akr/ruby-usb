@@ -83,7 +83,7 @@ define_usb_struct(device, Device)
 define_usb_struct(config_descriptor, Configuration)
 define_usb_struct(interface, Interface)
 define_usb_struct(interface_descriptor, Setting)
-define_usb_struct(endpoint_descriptor, EndpointDescriptor)
+define_usb_struct(endpoint_descriptor, Endpoint)
 
 static int mark_data_i(st_data_t key, st_data_t val, st_data_t arg)
 {
@@ -388,41 +388,41 @@ rusb_setting_endpoints(VALUE v)
   return endpoint;
 }
 
-/* -------- USB::EndpointDescriptor -------- */
+/* -------- USB::Endpoint -------- */
 
-/* USB::EndpointDescriptor#revoked? */
+/* USB::Endpoint#revoked? */
 static VALUE
-rusb_epdesc_revoked_p(VALUE v)
+rusb_endpoint_revoked_p(VALUE v)
 {
   return RTEST(!check_usb_endpoint_descriptor(v));
 }
 
-/* USB::EndpointDescriptor#setting */
-static VALUE rusb_epdesc_setting(VALUE v) { return get_rusb_endpoint_descriptor(v)->parent; }
+/* USB::Endpoint#setting */
+static VALUE rusb_endpoint_setting(VALUE v) { return get_rusb_endpoint_descriptor(v)->parent; }
 
-/* USB::EndpointDescriptor#bLength */
-static VALUE rusb_epdesc_bLength(VALUE v) { return INT2FIX(get_usb_endpoint_descriptor(v)->bLength); }
+/* USB::Endpoint#bLength */
+static VALUE rusb_endpoint_bLength(VALUE v) { return INT2FIX(get_usb_endpoint_descriptor(v)->bLength); }
 
-/* USB::EndpointDescriptor#bDescriptorType */
-static VALUE rusb_epdesc_bDescriptorType(VALUE v) { return INT2FIX(get_usb_endpoint_descriptor(v)->bDescriptorType); }
+/* USB::Endpoint#bDescriptorType */
+static VALUE rusb_endpoint_bDescriptorType(VALUE v) { return INT2FIX(get_usb_endpoint_descriptor(v)->bDescriptorType); }
 
-/* USB::EndpointDescriptor#bEndpointAddress */
-static VALUE rusb_epdesc_bEndpointAddress(VALUE v) { return INT2FIX(get_usb_endpoint_descriptor(v)->bEndpointAddress); }
+/* USB::Endpoint#bEndpointAddress */
+static VALUE rusb_endpoint_bEndpointAddress(VALUE v) { return INT2FIX(get_usb_endpoint_descriptor(v)->bEndpointAddress); }
 
-/* USB::EndpointDescriptor#bmAttributes */
-static VALUE rusb_epdesc_bmAttributes(VALUE v) { return INT2FIX(get_usb_endpoint_descriptor(v)->bmAttributes); }
+/* USB::Endpoint#bmAttributes */
+static VALUE rusb_endpoint_bmAttributes(VALUE v) { return INT2FIX(get_usb_endpoint_descriptor(v)->bmAttributes); }
 
-/* USB::EndpointDescriptor#wMaxPacketSize */
-static VALUE rusb_epdesc_wMaxPacketSize(VALUE v) { return INT2FIX(get_usb_endpoint_descriptor(v)->wMaxPacketSize); }
+/* USB::Endpoint#wMaxPacketSize */
+static VALUE rusb_endpoint_wMaxPacketSize(VALUE v) { return INT2FIX(get_usb_endpoint_descriptor(v)->wMaxPacketSize); }
 
-/* USB::EndpointDescriptor#bInterval */
-static VALUE rusb_epdesc_bInterval(VALUE v) { return INT2FIX(get_usb_endpoint_descriptor(v)->bInterval); }
+/* USB::Endpoint#bInterval */
+static VALUE rusb_endpoint_bInterval(VALUE v) { return INT2FIX(get_usb_endpoint_descriptor(v)->bInterval); }
 
-/* USB::EndpointDescriptor#bRefresh */
-static VALUE rusb_epdesc_bRefresh(VALUE v) { return INT2FIX(get_usb_endpoint_descriptor(v)->bRefresh); }
+/* USB::Endpoint#bRefresh */
+static VALUE rusb_endpoint_bRefresh(VALUE v) { return INT2FIX(get_usb_endpoint_descriptor(v)->bRefresh); }
 
-/* USB::EndpointDescriptor#bSynchAddress */
-static VALUE rusb_epdesc_bSynchAddress(VALUE v) { return INT2FIX(get_usb_endpoint_descriptor(v)->bSynchAddress); }
+/* USB::Endpoint#bSynchAddress */
+static VALUE rusb_endpoint_bSynchAddress(VALUE v) { return INT2FIX(get_usb_endpoint_descriptor(v)->bSynchAddress); }
 
 /* -------- USB::DevHandle -------- */
 
@@ -816,7 +816,7 @@ Init_usb()
   rb_cUSB_Setting = rb_define_class_under(rb_cUSB, "Setting", rb_cData);
 
   endpoint_descriptor_objects = st_init_numtable();
-  rb_cUSB_EndpointDescriptor = rb_define_class_under(rb_cUSB, "EndpointDescriptor", rb_cData);
+  rb_cUSB_Endpoint = rb_define_class_under(rb_cUSB, "Endpoint", rb_cData);
 
   rb_cUSB_DevHandle = rb_define_class_under(rb_cUSB, "DevHandle", rb_cData);
 
@@ -893,16 +893,16 @@ Init_usb()
   rb_define_method(rb_cUSB_Setting, "iInterface", rusb_setting_iInterface, 0);
   rb_define_method(rb_cUSB_Setting, "endpoints", rusb_setting_endpoints, 0);
 
-  rb_define_method(rb_cUSB_EndpointDescriptor, "revoked?", rusb_epdesc_revoked_p, 0);
-  rb_define_method(rb_cUSB_EndpointDescriptor, "setting", rusb_epdesc_setting, 0);
-  rb_define_method(rb_cUSB_EndpointDescriptor, "bLength", rusb_epdesc_bLength, 0);
-  rb_define_method(rb_cUSB_EndpointDescriptor, "bDescriptorType", rusb_epdesc_bDescriptorType, 0);
-  rb_define_method(rb_cUSB_EndpointDescriptor, "bEndpointAddress", rusb_epdesc_bEndpointAddress, 0);
-  rb_define_method(rb_cUSB_EndpointDescriptor, "bmAttributes", rusb_epdesc_bmAttributes, 0);
-  rb_define_method(rb_cUSB_EndpointDescriptor, "wMaxPacketSize", rusb_epdesc_wMaxPacketSize, 0);
-  rb_define_method(rb_cUSB_EndpointDescriptor, "bInterval", rusb_epdesc_bInterval, 0);
-  rb_define_method(rb_cUSB_EndpointDescriptor, "bRefresh", rusb_epdesc_bRefresh, 0);
-  rb_define_method(rb_cUSB_EndpointDescriptor, "bSynchAddress", rusb_epdesc_bSynchAddress, 0);
+  rb_define_method(rb_cUSB_Endpoint, "revoked?", rusb_endpoint_revoked_p, 0);
+  rb_define_method(rb_cUSB_Endpoint, "setting", rusb_endpoint_setting, 0);
+  rb_define_method(rb_cUSB_Endpoint, "bLength", rusb_endpoint_bLength, 0);
+  rb_define_method(rb_cUSB_Endpoint, "bDescriptorType", rusb_endpoint_bDescriptorType, 0);
+  rb_define_method(rb_cUSB_Endpoint, "bEndpointAddress", rusb_endpoint_bEndpointAddress, 0);
+  rb_define_method(rb_cUSB_Endpoint, "bmAttributes", rusb_endpoint_bmAttributes, 0);
+  rb_define_method(rb_cUSB_Endpoint, "wMaxPacketSize", rusb_endpoint_wMaxPacketSize, 0);
+  rb_define_method(rb_cUSB_Endpoint, "bInterval", rusb_endpoint_bInterval, 0);
+  rb_define_method(rb_cUSB_Endpoint, "bRefresh", rusb_endpoint_bRefresh, 0);
+  rb_define_method(rb_cUSB_Endpoint, "bSynchAddress", rusb_endpoint_bSynchAddress, 0);
 
   rb_define_method(rb_cUSB_DevHandle, "usb_close", rusb_close, 0);
   rb_define_method(rb_cUSB_DevHandle, "usb_set_configuration", rusb_set_configuration, 1);
