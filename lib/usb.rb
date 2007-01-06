@@ -200,6 +200,11 @@ module USB
       end
     end
 
+    def configuration
+      return @configuration if defined? @configuration
+      @configuration = self.device.open {|h| h.get_string_simple(self.iConfiguration) }
+    end
+
     def interface_descriptors() self.interfaces.map {|d| d.altsettings }.flatten end
 
     def bus() self.device.bus end
