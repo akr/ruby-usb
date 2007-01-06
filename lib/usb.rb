@@ -144,15 +144,15 @@ module USB
       if self.revoked?
         "\#<#{self.class} revoked>"
       else
-        vendor_id = self.descriptor_idVendor
-        product_id = self.descriptor_idProduct
+        vendor_id = self.idVendor
+        product_id = self.idProduct
         prod = [self.manufacturer, self.product, self.serial_number].compact.join(" ")
-        if self.descriptor_bDeviceClass == USB::USB_CLASS_PER_INTERFACE
+        if self.bDeviceClass == USB::USB_CLASS_PER_INTERFACE
           devclass = self.settings.map {|i|
             USB.devsubclass_string(i.bInterfaceClass, i.bInterfaceSubClass)
           }.join(", ")
         else
-          devclass = USB.devsubclass_string(self.descriptor_bDeviceClass, self.descriptor_bDeviceSubClass)
+          devclass = USB.devsubclass_string(self.bDeviceClass, self.bDeviceSubClass)
         end
 
         "\#<#{self.class} #{self.bus.dirname}/#{self.filename} #{"%04x:%04x" % [vendor_id, product_id]} #{prod} (#{devclass})>"
@@ -161,17 +161,17 @@ module USB
 
     def manufacturer
       return @manufacturer if defined? @manufacturer
-      @manufacturer = self.open {|h| h.get_string_simple(self.descriptor_iManufacturer) }
+      @manufacturer = self.open {|h| h.get_string_simple(self.iManufacturer) }
     end
 
     def product
       return @product if defined? @product
-      @product = self.open {|h| h.get_string_simple(self.descriptor_iProduct) }
+      @product = self.open {|h| h.get_string_simple(self.iProduct) }
     end
 
     def serial_number
       return @serial_number if defined? @serial_number
-      @serial_number = self.open {|h| h.get_string_simple(self.descriptor_iSerialNumber) }
+      @serial_number = self.open {|h| h.get_string_simple(self.iSerialNumber) }
     end
 
     def open
