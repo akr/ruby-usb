@@ -98,6 +98,8 @@ static void rusb_gc_mark(void *p) {
   st_foreach(device_objects, mark_data_i, 0);
   st_foreach(config_descriptor_objects, mark_data_i, 0);
   st_foreach(interface_objects, mark_data_i, 0);
+  st_foreach(interface_descriptor_objects, mark_data_i, 0);
+  st_foreach(endpoint_descriptor_objects, mark_data_i, 0);
 }
 
 /* -------- USB::Bus -------- */
@@ -115,6 +117,8 @@ rusb_find_busses(VALUE cUSB)
   st_foreach(device_objects, revoke_data_i, 0);
   st_foreach(config_descriptor_objects, revoke_data_i, 0);
   st_foreach(interface_objects, revoke_data_i, 0);
+  st_foreach(interface_descriptor_objects, revoke_data_i, 0);
+  st_foreach(endpoint_descriptor_objects, revoke_data_i, 0);
   return INT2NUM(usb_find_busses());
 }
 
