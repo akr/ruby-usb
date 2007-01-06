@@ -30,8 +30,8 @@ module USB
   end
 
   def USB.devices() USB.busses.map {|b| b.devices }.flatten end
-  def USB.config_descriptors() USB.devices.map {|d| d.config_descriptors }.flatten end
-  def USB.interfaces() USB.config_descriptors.map {|d| d.interfaces }.flatten end
+  def USB.configurations() USB.devices.map {|d| d.configurations }.flatten end
+  def USB.interfaces() USB.configurations.map {|d| d.interfaces }.flatten end
   def USB.interface_descriptors() USB.interfaces.map {|d| d.altsettings }.flatten end
 
   def USB.find_bus(n)
@@ -62,8 +62,8 @@ module USB
       result.sort_by {|d| d.filename }
     end
 
-    def config_descriptors() self.devices.map {|d| d.config_descriptors }.flatten end
-    def interfaces() self.config_descriptors.map {|d| d.interfaces }.flatten end
+    def configurations() self.devices.map {|d| d.configurations }.flatten end
+    def interfaces() self.configurations.map {|d| d.interfaces }.flatten end
     def interface_descriptors() self.interfaces.map {|d| d.altsettings }.flatten end
 
     def find_device(n)
@@ -187,11 +187,11 @@ module USB
       end
     end
 
-    def interfaces() self.config_descriptors.map {|d| d.interfaces }.flatten end
+    def interfaces() self.configurations.map {|d| d.interfaces }.flatten end
     def interface_descriptors() self.interfaces.map {|d| d.altsettings }.flatten end
   end
 
-  class ConfigDescriptor
+  class Configuration
     def inspect
       if self.revoked?
         "\#<#{self.class} revoked>"
@@ -219,8 +219,8 @@ module USB
       end
     end
 
-    def bus() self.config_descriptor.device.bus end
-    def device() self.config_descriptor.device end
+    def bus() self.configuration.device.bus end
+    def device() self.configuration.device end
   end
 
   class InterfaceDescriptor
@@ -233,15 +233,15 @@ module USB
       end
     end
 
-    def bus() self.interface.config_descriptor.device.bus end
-    def device() self.interface.config_descriptor.device end
-    def config_descriptor() self.interface.config_descriptor end
+    def bus() self.interface.configuration.device.bus end
+    def device() self.interface.configuration.device end
+    def configuration() self.interface.configuration end
   end
 
   class EndpointDescriptor
-    def bus() self.interface_descriptor.interface.config_descriptor.device.bus end
-    def device() self.interface_descriptor.interface.config_descriptor.device end
-    def config_descriptor() self.interface_descriptor.interface.config_descriptor end
+    def bus() self.interface_descriptor.interface.configuration.device.bus end
+    def device() self.interface_descriptor.interface.configuration.device end
+    def configuration() self.interface_descriptor.interface.configuration end
     def interface() self.interface_descriptor.interface end
   end
 
