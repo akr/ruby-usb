@@ -93,6 +93,7 @@ static int revoke_data_i(st_data_t key, st_data_t val, st_data_t arg)
   return ST_DELETE;
 }
 
+/* USB.find_busses */
 static VALUE
 rusb_find_busses(VALUE cUSB)
 {
@@ -103,12 +104,14 @@ rusb_find_busses(VALUE cUSB)
   return INT2NUM(usb_find_busses());
 }
 
+/* USB.find_devices */
 static VALUE
 rusb_find_devices(VALUE cUSB)
 {
   return INT2NUM(usb_find_devices());
 }
 
+/* USB.get_busses */
 static VALUE
 rusb_get_busses(VALUE cUSB)
 {
@@ -116,6 +119,7 @@ rusb_get_busses(VALUE cUSB)
   return rusb_bus_make(bus);
 }
 
+/* USB::Bus#inspect */
 static VALUE
 rusb_bus_inspect(VALUE vbus)
 {
@@ -131,14 +135,24 @@ rusb_bus_inspect(VALUE vbus)
   return str;
 }
 
+/* USB::Bus#prev */
 static VALUE rusb_bus_prev(VALUE v) { return rusb_bus_make(get_usb_bus(v)->prev); }
+
+/* USB::Bus#next */
 static VALUE rusb_bus_next(VALUE v) { return rusb_bus_make(get_usb_bus(v)->next); }
+
+/* USB::Bus#dirname */
 static VALUE rusb_bus_dirname(VALUE v) { return rb_str_new2(get_usb_bus(v)->dirname); }
+
+/* USB::Bus#location */
 static VALUE rusb_bus_location(VALUE v) { return UINT2NUM(get_usb_bus(v)->location); }
+
+/* USB::Bus#devices */
 static VALUE rusb_bus_devices(VALUE v) { return rusb_device_make(get_usb_bus(v)->devices); }
 
 /* -------- USB::Device -------- */
 
+/* USB::Device#inspect */
 static VALUE
 rusb_device_inspect(VALUE vdevice)
 {
@@ -154,13 +168,25 @@ rusb_device_inspect(VALUE vdevice)
   return str;
 }
 
+/* USB::Device#prev */
 static VALUE rusb_device_prev(VALUE v) { return rusb_device_make(get_usb_device(v)->prev); }
+
+/* USB::Device#next */
 static VALUE rusb_device_next(VALUE v) { return rusb_device_make(get_usb_device(v)->next); }
+
+/* USB::Device#filename */
 static VALUE rusb_device_filename(VALUE v) { return rb_str_new2(get_usb_device(v)->filename); }
+
+/* USB::Device#bus */
 static VALUE rusb_device_bus(VALUE v) { return rusb_bus_make(get_usb_device(v)->bus); }
+
+/* USB::Device#devnum */
 static VALUE rusb_device_devnum(VALUE v) { return INT2FIX(get_usb_device(v)->devnum); }
+
+/* USB::Device#num_children */
 static VALUE rusb_device_num_children(VALUE v) { return INT2FIX(get_usb_device(v)->num_children); }
 
+/* USB::Device#children */
 static VALUE
 rusb_device_children(VALUE vdevice)
 {
@@ -172,21 +198,49 @@ rusb_device_children(VALUE vdevice)
   return children;
 }
 
+/* USB::Device#descriptor_bLength */
 static VALUE rusb_devdesc_bLength(VALUE v) { return INT2FIX(get_usb_device(v)->descriptor.bLength); }
+
+/* USB::Device#descriptor_bDescriptorType */
 static VALUE rusb_devdesc_bDescriptorType(VALUE v) { return INT2FIX(get_usb_device(v)->descriptor.bDescriptorType); }
+
+/* USB::Device#descriptor_bcdUSB */
 static VALUE rusb_devdesc_bcdUSB(VALUE v) { return INT2FIX(get_usb_device(v)->descriptor.bcdUSB); }
+
+/* USB::Device#descriptor_bDeviceClass */
 static VALUE rusb_devdesc_bDeviceClass(VALUE v) { return INT2FIX(get_usb_device(v)->descriptor.bDeviceClass); }
+
+/* USB::Device#descriptor_bDeviceSubClass */
 static VALUE rusb_devdesc_bDeviceSubClass(VALUE v) { return INT2FIX(get_usb_device(v)->descriptor.bDeviceSubClass); }
+
+/* USB::Device#descriptor_bDeviceProtocol */
 static VALUE rusb_devdesc_bDeviceProtocol(VALUE v) { return INT2FIX(get_usb_device(v)->descriptor.bDeviceProtocol); }
+
+/* USB::Device#descriptor_bMaxPacketSize0 */
 static VALUE rusb_devdesc_bMaxPacketSize0(VALUE v) { return INT2FIX(get_usb_device(v)->descriptor.bMaxPacketSize0); }
+
+/* USB::Device#descriptor_idVendor */
 static VALUE rusb_devdesc_idVendor(VALUE v) { return INT2FIX(get_usb_device(v)->descriptor.idVendor); }
+
+/* USB::Device#descriptor_idProduct */
 static VALUE rusb_devdesc_idProduct(VALUE v) { return INT2FIX(get_usb_device(v)->descriptor.idProduct); }
+
+/* USB::Device#descriptor_bcdDevice */
 static VALUE rusb_devdesc_bcdDevice(VALUE v) { return INT2FIX(get_usb_device(v)->descriptor.bcdDevice); }
+
+/* USB::Device#descriptor_iManufacturer */
 static VALUE rusb_devdesc_iManufacturer(VALUE v) { return INT2FIX(get_usb_device(v)->descriptor.iManufacturer); }
+
+/* USB::Device#descriptor_iProduct */
 static VALUE rusb_devdesc_iProduct(VALUE v) { return INT2FIX(get_usb_device(v)->descriptor.iProduct); }
+
+/* USB::Device#descriptor_iSerialNumber */
 static VALUE rusb_devdesc_iSerialNumber(VALUE v) { return INT2FIX(get_usb_device(v)->descriptor.iSerialNumber); }
+
+/* USB::Device#descriptor_bNumConfigurations */
 static VALUE rusb_devdesc_bNumConfigurations(VALUE v) { return INT2FIX(get_usb_device(v)->descriptor.bNumConfigurations); }
 
+/* USB::Device#config */
 static VALUE
 rusb_device_config(VALUE vdevice)
 {
@@ -198,6 +252,7 @@ rusb_device_config(VALUE vdevice)
   return children;
 }
 
+/* USB::Device#usb_open */
 static VALUE
 rusb_device_open(VALUE vdevice)
 {
@@ -208,6 +263,7 @@ rusb_device_open(VALUE vdevice)
 
 /* -------- USB::ConfigDescriptor -------- */
 
+/* USB::ConfigDescriptor#inspect */
 static VALUE
 rusb_confdesc_inspect(VALUE vconfig_descriptor)
 {
@@ -222,15 +278,31 @@ rusb_confdesc_inspect(VALUE vconfig_descriptor)
   return str;
 }
 
+/* USB::ConfigDescriptor#bLength */
 static VALUE rusb_confdesc_bLength(VALUE v) { return INT2FIX(get_usb_config_descriptor(v)->bLength); }
+
+/* USB::ConfigDescriptor#bDescriptorType */
 static VALUE rusb_confdesc_bDescriptorType(VALUE v) { return INT2FIX(get_usb_config_descriptor(v)->bDescriptorType); }
+
+/* USB::ConfigDescriptor#wTotalLength */
 static VALUE rusb_confdesc_wTotalLength(VALUE v) { return INT2FIX(get_usb_config_descriptor(v)->wTotalLength); }
+
+/* USB::ConfigDescriptor#bNumInterfaces */
 static VALUE rusb_confdesc_bNumInterfaces(VALUE v) { return INT2FIX(get_usb_config_descriptor(v)->bNumInterfaces); }
+
+/* USB::ConfigDescriptor#bConfigurationValue */
 static VALUE rusb_confdesc_bConfigurationValue(VALUE v) { return INT2FIX(get_usb_config_descriptor(v)->bConfigurationValue); }
+
+/* USB::ConfigDescriptor#iConfiguration */
 static VALUE rusb_confdesc_iConfiguration(VALUE v) { return INT2FIX(get_usb_config_descriptor(v)->iConfiguration); }
+
+/* USB::ConfigDescriptor#bmAttributes */
 static VALUE rusb_confdesc_bmAttributes(VALUE v) { return INT2FIX(get_usb_config_descriptor(v)->bmAttributes); }
+
+/* USB::ConfigDescriptor#MaxPower */
 static VALUE rusb_confdesc_MaxPower(VALUE v) { return INT2FIX(get_usb_config_descriptor(v)->MaxPower); }
 
+/* USB::ConfigDescriptor#interface */
 static VALUE
 rusb_confdesc_interface(VALUE v)
 {
@@ -244,6 +316,7 @@ rusb_confdesc_interface(VALUE v)
 
 /* -------- USB::Interface -------- */
 
+/* USB::Interface#inspect */
 static VALUE
 rusb_interface_inspect(VALUE v)
 {
@@ -258,8 +331,10 @@ rusb_interface_inspect(VALUE v)
   return str;
 }
 
+/* USB::Interface#num_altsetting */
 static VALUE rusb_interface_num_altsetting(VALUE v) { return INT2FIX(get_usb_interface(v)->num_altsetting); }
 
+/* USB::Interface#altsetting */
 static VALUE
 rusb_interface_altsetting(VALUE v)
 {
@@ -273,16 +348,34 @@ rusb_interface_altsetting(VALUE v)
 
 /* -------- USB::InterfaceDescriptor -------- */
 
+/* USB::InterfaceDescriptor#bLength */
 static VALUE rusb_ifdesc_bLength(VALUE v) { return INT2FIX(get_usb_interface_descriptor(v)->bLength); }
+
+/* USB::InterfaceDescriptor#bDescriptorType */
 static VALUE rusb_ifdesc_bDescriptorType(VALUE v) { return INT2FIX(get_usb_interface_descriptor(v)->bDescriptorType); }
+
+/* USB::InterfaceDescriptor#bInterfaceNumber */
 static VALUE rusb_ifdesc_bInterfaceNumber(VALUE v) { return INT2FIX(get_usb_interface_descriptor(v)->bInterfaceNumber); }
+
+/* USB::InterfaceDescriptor#bAlternateSetting */
 static VALUE rusb_ifdesc_bAlternateSetting(VALUE v) { return INT2FIX(get_usb_interface_descriptor(v)->bAlternateSetting); }
+
+/* USB::InterfaceDescriptor#bNumEndpoints */
 static VALUE rusb_ifdesc_bNumEndpoints(VALUE v) { return INT2FIX(get_usb_interface_descriptor(v)->bNumEndpoints); }
+
+/* USB::InterfaceDescriptor#bInterfaceClass */
 static VALUE rusb_ifdesc_bInterfaceClass(VALUE v) { return INT2FIX(get_usb_interface_descriptor(v)->bInterfaceClass); }
+
+/* USB::InterfaceDescriptor#bInterfaceSubClass */
 static VALUE rusb_ifdesc_bInterfaceSubClass(VALUE v) { return INT2FIX(get_usb_interface_descriptor(v)->bInterfaceSubClass); }
+
+/* USB::InterfaceDescriptor#bInterfaceProtocol */
 static VALUE rusb_ifdesc_bInterfaceProtocol(VALUE v) { return INT2FIX(get_usb_interface_descriptor(v)->bInterfaceProtocol); }
+
+/* USB::InterfaceDescriptor#iInterface */
 static VALUE rusb_ifdesc_iInterface(VALUE v) { return INT2FIX(get_usb_interface_descriptor(v)->iInterface); }
 
+/* USB::InterfaceDescriptor#endpoint */
 static VALUE
 rusb_ifdesc_endpoint(VALUE v)
 {
@@ -296,13 +389,28 @@ rusb_ifdesc_endpoint(VALUE v)
 
 /* -------- USB::EndpointDescriptor -------- */
 
+/* USB::EndpointDescriptor#bLength */
 static VALUE rusb_epdesc_bLength(VALUE v) { return INT2FIX(get_usb_endpoint_descriptor(v)->bLength); }
+
+/* USB::EndpointDescriptor#bDescriptorType */
 static VALUE rusb_epdesc_bDescriptorType(VALUE v) { return INT2FIX(get_usb_endpoint_descriptor(v)->bDescriptorType); }
+
+/* USB::EndpointDescriptor#bEndpointAddress */
 static VALUE rusb_epdesc_bEndpointAddress(VALUE v) { return INT2FIX(get_usb_endpoint_descriptor(v)->bEndpointAddress); }
+
+/* USB::EndpointDescriptor#bmAttributes */
 static VALUE rusb_epdesc_bmAttributes(VALUE v) { return INT2FIX(get_usb_endpoint_descriptor(v)->bmAttributes); }
+
+/* USB::EndpointDescriptor#wMaxPacketSize */
 static VALUE rusb_epdesc_wMaxPacketSize(VALUE v) { return INT2FIX(get_usb_endpoint_descriptor(v)->wMaxPacketSize); }
+
+/* USB::EndpointDescriptor#bInterval */
 static VALUE rusb_epdesc_bInterval(VALUE v) { return INT2FIX(get_usb_endpoint_descriptor(v)->bInterval); }
+
+/* USB::EndpointDescriptor#bRefresh */
 static VALUE rusb_epdesc_bRefresh(VALUE v) { return INT2FIX(get_usb_endpoint_descriptor(v)->bRefresh); }
+
+/* USB::EndpointDescriptor#bSynchAddress */
 static VALUE rusb_epdesc_bSynchAddress(VALUE v) { return INT2FIX(get_usb_endpoint_descriptor(v)->bSynchAddress); }
 
 /* -------- USB::DevHandle -------- */
@@ -349,6 +457,7 @@ static int check_usb_error(char *reason, int ret)
   return ret;
 }
 
+/* USB::DevHandle#usb_close */
 static VALUE
 rusb_close(VALUE v)
 {
@@ -358,6 +467,7 @@ rusb_close(VALUE v)
   return Qnil;
 }
 
+/* USB::DevHandle#usb_set_configuration(configuration) */
 static VALUE
 rusb_set_configuration(VALUE v, VALUE configuration)
 {
@@ -367,6 +477,7 @@ rusb_set_configuration(VALUE v, VALUE configuration)
   return Qnil;
 }
 
+/* USB::DevHandle#usb_set_altinterface(alternate) */
 static VALUE
 rusb_set_altinterface(VALUE v, VALUE alternate)
 {
@@ -376,6 +487,7 @@ rusb_set_altinterface(VALUE v, VALUE alternate)
   return Qnil;
 }
 
+/* USB::DevHandle#usb_clear_halt(endpoint) */
 static VALUE
 rusb_clear_halt(VALUE v, VALUE ep)
 {
@@ -385,6 +497,7 @@ rusb_clear_halt(VALUE v, VALUE ep)
   return Qnil;
 }
 
+/* USB::DevHandle#usb_reset */
 static VALUE
 rusb_reset(VALUE v)
 {
@@ -395,6 +508,7 @@ rusb_reset(VALUE v)
   return Qnil;
 }
 
+/* USB::DevHandle#usb_claim_interface(interface) */
 static VALUE
 rusb_claim_interface(VALUE v, VALUE interface)
 {
@@ -404,6 +518,7 @@ rusb_claim_interface(VALUE v, VALUE interface)
   return Qnil;
 }
 
+/* USB::DevHandle#usb_release_interface(interface) */
 static VALUE
 rusb_release_interface(VALUE v, VALUE interface)
 {
@@ -413,6 +528,7 @@ rusb_release_interface(VALUE v, VALUE interface)
   return Qnil;
 }
 
+/* USB::DevHandle#usb_control_msg(requesttype, request, value, index, bytes, timeout) */
 static VALUE
 rusb_control_msg(
   VALUE v,
@@ -441,6 +557,7 @@ rusb_control_msg(
   return INT2NUM(ret);
 }
 
+/* USB::DevHandle#usb_get_string(index, langid, buf) */
 static VALUE
 rusb_get_string(
   VALUE v,
@@ -463,6 +580,7 @@ rusb_get_string(
   return INT2NUM(ret);
 }
 
+/* USB::DevHandle#usb_get_string_simple(index, buf) */
 static VALUE
 rusb_get_string_simple(
   VALUE v,
@@ -483,6 +601,7 @@ rusb_get_string_simple(
   return INT2NUM(ret);
 }
 
+/* USB::DevHandle#usb_get_descriptor(type, index, buf) */
 static VALUE
 rusb_get_descriptor(
   VALUE v,
@@ -505,6 +624,7 @@ rusb_get_descriptor(
   return INT2NUM(ret);
 }
 
+/* USB::DevHandle#usb_get_descriptor_by_endpoint(endpoint, type, index, buf) */
 static VALUE
 rusb_get_descriptor_by_endpoint(
   VALUE v,
@@ -529,6 +649,7 @@ rusb_get_descriptor_by_endpoint(
   return INT2NUM(ret);
 }
 
+/* USB::DevHandle#usb_bulk_write(endpoint, bytes, timeout) */
 static VALUE
 rusb_bulk_write(
   VALUE v,
@@ -550,6 +671,7 @@ rusb_bulk_write(
   return INT2NUM(ret);
 }
 
+/* USB::DevHandle#usb_bulk_read(endpoint, bytes, timeout) */
 static VALUE
 rusb_bulk_read(
   VALUE v,
@@ -572,6 +694,7 @@ rusb_bulk_read(
   return INT2NUM(ret);
 }
 
+/* USB::DevHandle#usb_interrupt_write(endpoint, bytes, timeout) */
 static VALUE
 rusb_interrupt_write(
   VALUE v,
@@ -593,6 +716,7 @@ rusb_interrupt_write(
   return INT2NUM(ret);
 }
 
+/* USB::DevHandle#usb_interrupt_read(endpoint, bytes, timeout) */
 static VALUE
 rusb_interrupt_read(
   VALUE v,
@@ -616,6 +740,7 @@ rusb_interrupt_read(
 }
 
 #ifdef LIBUSB_HAS_GET_DRIVER_NP
+/* USB::DevHandle#usb_get_driver_np(interface, name) */
 static VALUE
 rusb_get_driver_np(
   VALUE v,
@@ -638,6 +763,7 @@ rusb_get_driver_np(
 #endif
 
 #ifdef LIBUSB_HAS_DETACH_KERNEL_DRIVER_NP
+/* USB::DevHandle#usb_detach_kernel_driver_np(interface) */
 static VALUE
 rusb_detach_kernel_driver_np(
   VALUE v,
