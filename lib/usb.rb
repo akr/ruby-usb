@@ -168,7 +168,6 @@ module USB
           devclass = USB.dev_string(self.bDeviceClass, self.bDeviceSubClass, self.bDeviceProtocol)
         end
         attrs << "(#{devclass})"
-
         "\#<#{self.class} #{attrs.join(' ')}>"
       end
     end
@@ -300,6 +299,31 @@ module USB
   end
 
   class DevHandle
+    def set_configuration(configuration)
+      configuration = configuration.bConfigurationValue if configuration.respond_to? :bConfigurationValue
+      self.usb_set_configuration(configuration)
+    end
+
+    def set_altinterface(alternate)
+      alternate = alternate.bAlternateSetting if alternate.respond_to? :bAlternateSetting
+      self.usb_set_altinterface(alternate)
+    end
+
+    def clear_halt(ep)
+      ep = ep.bEndpointAddress if ep.respond_to? :bEndpointAddress
+      self.usb_clear_halt(ep)
+    end
+
+    def claim_interface(interface)
+      interface = interface.bInterfaceNumber if interface.respond_to? :bInterfaceNumber
+      self.usb_claim_interface(interface)
+    end
+
+    def release_interface(interface)
+      interface = interface.bInterfaceNumber if interface.respond_to? :bInterfaceNumber
+      self.usb_release_interface(interface)
+    end
+
     def get_string_simple(index)
       result = "\0" * 256
       self.usb_get_string_simple(index, result)
