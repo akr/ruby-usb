@@ -126,7 +126,7 @@ module USB
     nil
   end
 
-  def USB.devsubclass_string(c, s)
+  def USB.dev_string(c, s)
     result = USB.devclass_string(c)
     if result
       subclass = USB.subclass_string(c, s)
@@ -146,18 +146,22 @@ module USB
       if self.revoked?
         "\#<#{self.class} revoked>"
       else
-        vendor_id = self.idVendor
-        product_id = self.idProduct
-        prod = [self.manufacturer, self.product, self.serial_number].compact.join(" ")
+        attrs = []
+        attrs << "#{self.bus.dirname}/#{self.filename}"
+        attrs << ("%04x:%04x" % [self.idVendor, self.idProduct])
+        attrs << self.manufacturer
+        attrs << self.product
+        attrs << self.serial_number
         if self.bDeviceClass == USB::USB_CLASS_PER_INTERFACE
           devclass = self.settings.map {|i|
-            USB.devsubclass_string(i.bInterfaceClass, i.bInterfaceSubClass)
+            USB.dev_string(i.bInterfaceClass, i.bInterfaceSubClass)
           }.join(", ")
         else
-          devclass = USB.devsubclass_string(self.bDeviceClass, self.bDeviceSubClass)
+          devclass = USB.dev_string(self.bDeviceClass, self.bDeviceSubClass)
         end
+        attrs << "(#{devclass})"
 
-        "\#<#{self.class} #{self.bus.dirname}/#{self.filename} #{"%04x:%04x" % [vendor_id, product_id]} #{prod} (#{devclass})>"
+        "\#<#{self.class} #{attrs.join(' ')}>"
       end
     end
 
@@ -199,7 +203,14 @@ module USB
       if self.revoked?
         "\#<#{self.class} revoked>"
       else
-        "\#<#{self.class} #{self.description}>"
+        attrs = []
+        attrs << self.bConfigurationValue.to_s
+        bits = self.bmAttributes
+        attrs << "SelfPowered" if (bits & 0b1000000) != 0
+        attrs << "RemoteWakeup" if (bits & 0b100000) != 0
+        desc = self.description
+        attrs << desc if desc != '?'
+        "\#<#{self.class} #{attrs.join(' ')}>"
       end
     end
 
@@ -234,8 +245,13 @@ module USB
       if self.revoked?
         "\#<#{self.class} revoked>"
       else
-        devclass = USB.devsubclass_string(self.bInterfaceClass, self.bInterfaceSubClass)
-        "\#<#{self.class} #{devclass} #{self.description}>"
+        attrs = []
+        attrs << self.bInterfaceNumber.to_s
+        devclass = USB.dev_string(self.bInterfaceClass, self.bInterfaceSubClass)
+        attrs << devclass
+        desc = self.description
+        attrs << desc if desc != '?'
+        "\#<#{self.class} #{attrs.join(' ')}>"
       end
     end
 
@@ -254,7 +270,18 @@ module USB
       if self.revoked?
         "\#<#{self.class} revoked>"
       else
-        "\#<#{self.class}>"
+        endpoint_address = self.bEndpointAddress
+        num = endpoint_address & 0b00001111
+        inout = (endpoint_address & 0b10000000) == 0 ? "OUT" : "IN "
+        bits = self.bmAttributes
+        transfer_type = %w[Control Isochronous Bulk Interrupt][0b11 & bits]
+        type = [transfer_type]
+        if transfer_type == 'Isochronous'
+          synchronization_type = %w[NoSynchronization Asynchronous Adaptive Synchronous][(0b1100 & bits) >> 2]
+          usage_type = %w[Data Feedback ImplicitFeedback ?][(0b110000 & bits) >> 4]
+          type << synchronization_type << usage_type
+        end
+        "\#<#{self.class} #{num} #{inout} #{type.join(" ")}>"
       end
     end
 
