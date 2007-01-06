@@ -151,9 +151,23 @@ module USB
       if self.revoked?
         "\#<#{self.class} revoked>"
       else
-        devclass = USB.devsubclass_string(self.descriptor_bDeviceClass, self.descriptor_bDeviceSubClass)
-        "\#<#{self.class} #{self.bus.dirname}/#{self.filename} #{devclass}>"
+        vendor = self.descriptor_idVendor
+        product = self.descriptor_idProduct
+        if self.descriptor_bDeviceClass == USB::USB_CLASS_PER_INTERFACE
+          devclass = self.interface_descriptors.map {|i| USB.devsubclass_string(i.bInterfaceClass, i.bInterfaceSubClass) }.join(", ")
+        else
+          devclass = USB.devsubclass_string(self.descriptor_bDeviceClass, self.descriptor_bDeviceSubClass)
+        end
+        "\#<#{self.class} #{self.bus.dirname}/#{self.filename} #{"%04x:%04x" % [vendor, product]} #{devclass}>"
       end
+    end
+
+    def interfaces
+      self.config.map {|c| c.interface }.flatten
+    end
+
+    def interface_descriptors
+      self.interfaces.map {|i| i.altsetting }.flatten
     end
   end
 
