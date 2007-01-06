@@ -126,22 +126,6 @@ rusb_bus_revoked_p(VALUE v)
   return RTEST(!check_usb_bus(v));
 }
 
-/* USB::Bus#inspect */
-static VALUE
-rusb_bus_inspect(VALUE vbus)
-{
-  struct usb_bus *bus = check_usb_bus(vbus);
-  char *cname = rb_obj_classname(vbus);
-  VALUE str;
-  if (!bus) {
-    return rb_sprintf("#<%s revoked>", cname);
-  }
-  str = rb_sprintf("#<%s ", cname);
-  rb_str_cat2(str, bus->dirname);
-  rb_str_cat2(str, ">");
-  return str;
-}
-
 /* USB::Bus#prev */
 static VALUE rusb_bus_prev(VALUE v) { return rusb_bus_make(get_usb_bus(v)->prev); }
 
@@ -164,24 +148,6 @@ static VALUE
 rusb_device_revoked_p(VALUE v)
 {
   return RTEST(!check_usb_device(v));
-}
-
-/* USB::Device#inspect */
-static VALUE
-rusb_device_inspect(VALUE vdevice)
-{
-  struct usb_device *device = check_usb_device(vdevice);
-  char *cname = rb_obj_classname(vdevice);
-  VALUE str;
-  if (!device) {
-    return rb_sprintf("#<%s revoked>", cname);
-  }
-  str = rb_sprintf("#<%s ", cname);
-  rb_str_cat2(str, device->bus->dirname);
-  rb_str_cat2(str, "/");
-  rb_str_cat2(str, device->filename);
-  rb_str_cat2(str, ">");
-  return str;
 }
 
 /* USB::Device#prev */
@@ -286,21 +252,6 @@ rusb_confdesc_revoked_p(VALUE v)
   return RTEST(!check_usb_config_descriptor(v));
 }
 
-/* USB::ConfigDescriptor#inspect */
-static VALUE
-rusb_confdesc_inspect(VALUE vconfig_descriptor)
-{
-  struct usb_config_descriptor *config_descriptor = check_usb_config_descriptor(vconfig_descriptor);
-  char *cname = rb_obj_classname(vconfig_descriptor);
-  VALUE str;
-  if (!config_descriptor) {
-    return rb_sprintf("#<%s revoked>", cname);
-  }
-  str = rb_sprintf("#<%s ", cname);
-  rb_str_cat2(str, ">");
-  return str;
-}
-
 /* USB::ConfigDescriptor#bLength */
 static VALUE rusb_confdesc_bLength(VALUE v) { return INT2FIX(get_usb_config_descriptor(v)->bLength); }
 
@@ -344,21 +295,6 @@ static VALUE
 rusb_interface_revoked_p(VALUE v)
 {
   return RTEST(!check_usb_interface(v));
-}
-
-/* USB::Interface#inspect */
-static VALUE
-rusb_interface_inspect(VALUE v)
-{
-  struct usb_interface *p = check_usb_interface(v);
-  char *cname = rb_obj_classname(v);
-  VALUE str;
-  if (!p) {
-    return rb_sprintf("#<%s revoked>", cname);
-  }
-  str = rb_sprintf("#<%s ", cname);
-  rb_str_cat2(str, ">");
-  return str;
 }
 
 /* USB::Interface#num_altsetting */
@@ -865,7 +801,6 @@ Init_usb()
   rb_define_module_function(rb_cUSB, "get_busses", rusb_get_busses, 0);
 
   rb_define_method(rb_cUSB_Bus, "revoked?", rusb_bus_revoked_p, 0);
-  rb_define_method(rb_cUSB_Bus, "inspect", rusb_bus_inspect, 0);
   rb_define_method(rb_cUSB_Bus, "prev", rusb_bus_prev, 0);
   rb_define_method(rb_cUSB_Bus, "next", rusb_bus_next, 0);
   rb_define_method(rb_cUSB_Bus, "dirname", rusb_bus_dirname, 0);
@@ -873,7 +808,6 @@ Init_usb()
   rb_define_method(rb_cUSB_Bus, "get_devices", rusb_bus_devices, 0);
 
   rb_define_method(rb_cUSB_Device, "revoked?", rusb_device_revoked_p, 0);
-  rb_define_method(rb_cUSB_Device, "inspect", rusb_device_inspect, 0);
   rb_define_method(rb_cUSB_Device, "prev", rusb_device_prev, 0);
   rb_define_method(rb_cUSB_Device, "next", rusb_device_next, 0);
   rb_define_method(rb_cUSB_Device, "filename", rusb_device_filename, 0);
@@ -899,7 +833,6 @@ Init_usb()
   rb_define_method(rb_cUSB_Device, "usb_open", rusb_device_open, 0);
 
   rb_define_method(rb_cUSB_ConfigDescriptor, "revoked?", rusb_confdesc_revoked_p, 0);
-  rb_define_method(rb_cUSB_ConfigDescriptor, "inspect", rusb_confdesc_inspect, 0);
   rb_define_method(rb_cUSB_ConfigDescriptor, "bLength", rusb_confdesc_bLength, 0);
   rb_define_method(rb_cUSB_ConfigDescriptor, "bDescriptorType", rusb_confdesc_bDescriptorType, 0);
   rb_define_method(rb_cUSB_ConfigDescriptor, "wTotalLength", rusb_confdesc_wTotalLength, 0);
@@ -911,7 +844,6 @@ Init_usb()
   rb_define_method(rb_cUSB_ConfigDescriptor, "interface", rusb_confdesc_interface, 0);
 
   rb_define_method(rb_cUSB_Interface, "revoked?", rusb_interface_revoked_p, 0);
-  rb_define_method(rb_cUSB_Interface, "inspect", rusb_interface_inspect, 0);
   rb_define_method(rb_cUSB_Interface, "num_altsetting", rusb_interface_num_altsetting, 0);
   rb_define_method(rb_cUSB_Interface, "altsetting", rusb_interface_altsetting, 0);
 

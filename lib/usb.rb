@@ -43,6 +43,14 @@ module USB
   end
 
   class Bus
+    def inspect
+      if self.revoked?
+        "\#<#{self.class} revoked>"
+      else
+        "\#<#{self.class} #{self.dirname}>"
+      end
+    end
+
     def devices
       result = []
       device = self.get_devices
@@ -60,6 +68,36 @@ module USB
         device = device.next
       end
       return nil
+    end
+  end
+
+  class Device
+    def inspect
+      if self.revoked?
+        "\#<#{self.class} revoked>"
+      else
+        "\#<#{self.class} #{self.bus.dirname}/#{self.filename}>"
+      end
+    end
+  end
+
+  class ConfigDescriptor
+    def inspect
+      if self.revoked?
+        "\#<#{self.class} revoked>"
+      else
+        "\#<#{self.class}>"
+      end
+    end
+  end
+
+  class Interface
+    def inspect
+      if self.revoked?
+        "\#<#{self.class} revoked>"
+      else
+        "\#<#{self.class}>"
+      end
     end
   end
 end
