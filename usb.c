@@ -278,7 +278,7 @@ static VALUE rusb_confdesc_MaxPower(VALUE v) { return INT2FIX(get_usb_config_des
 
 /* USB::ConfigDescriptor#interface */
 static VALUE
-rusb_confdesc_interface(VALUE v)
+rusb_confdesc_interfaces(VALUE v)
 {
   struct usb_config_descriptor *p = get_usb_config_descriptor(v);
   int i;
@@ -302,7 +302,7 @@ static VALUE rusb_interface_num_altsetting(VALUE v) { return INT2FIX(get_usb_int
 
 /* USB::Interface#altsetting */
 static VALUE
-rusb_interface_altsetting(VALUE v)
+rusb_interface_altsettings(VALUE v)
 {
   struct usb_interface *p = get_usb_interface(v);
   int i;
@@ -350,7 +350,7 @@ static VALUE rusb_ifdesc_iInterface(VALUE v) { return INT2FIX(get_usb_interface_
 
 /* USB::InterfaceDescriptor#endpoint */
 static VALUE
-rusb_ifdesc_endpoint(VALUE v)
+rusb_ifdesc_endpoints(VALUE v)
 {
   struct usb_interface_descriptor *p = get_usb_interface_descriptor(v);
   int i;
@@ -841,11 +841,11 @@ Init_usb()
   rb_define_method(rb_cUSB_ConfigDescriptor, "iConfiguration", rusb_confdesc_iConfiguration, 0);
   rb_define_method(rb_cUSB_ConfigDescriptor, "bmAttributes", rusb_confdesc_bmAttributes, 0);
   rb_define_method(rb_cUSB_ConfigDescriptor, "MaxPower", rusb_confdesc_MaxPower, 0);
-  rb_define_method(rb_cUSB_ConfigDescriptor, "get_interfaces", rusb_confdesc_interface, 0);
+  rb_define_method(rb_cUSB_ConfigDescriptor, "interfaces", rusb_confdesc_interfaces, 0);
 
   rb_define_method(rb_cUSB_Interface, "revoked?", rusb_interface_revoked_p, 0);
   rb_define_method(rb_cUSB_Interface, "num_altsetting", rusb_interface_num_altsetting, 0);
-  rb_define_method(rb_cUSB_Interface, "get_altsettings", rusb_interface_altsetting, 0);
+  rb_define_method(rb_cUSB_Interface, "altsettings", rusb_interface_altsettings, 0);
 
   rb_define_method(rb_cUSB_InterfaceDescriptor, "revoked?", rusb_ifdesc_revoked_p, 0);
   rb_define_method(rb_cUSB_InterfaceDescriptor, "bLength", rusb_ifdesc_bLength, 0);
@@ -857,7 +857,7 @@ Init_usb()
   rb_define_method(rb_cUSB_InterfaceDescriptor, "bInterfaceSubClass", rusb_ifdesc_bInterfaceSubClass, 0);
   rb_define_method(rb_cUSB_InterfaceDescriptor, "bInterfaceProtocol", rusb_ifdesc_bInterfaceProtocol, 0);
   rb_define_method(rb_cUSB_InterfaceDescriptor, "iInterface", rusb_ifdesc_iInterface, 0);
-  rb_define_method(rb_cUSB_InterfaceDescriptor, "get_endpoints", rusb_ifdesc_endpoint, 0);
+  rb_define_method(rb_cUSB_InterfaceDescriptor, "endpoints", rusb_ifdesc_endpoints, 0);
 
   rb_define_method(rb_cUSB_EndpointDescriptor, "revoked?", rusb_epdesc_revoked_p, 0);
   rb_define_method(rb_cUSB_EndpointDescriptor, "bLength", rusb_epdesc_bLength, 0);
