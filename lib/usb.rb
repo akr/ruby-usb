@@ -253,7 +253,7 @@ module USB
         "\#<#{self.class} revoked>"
       else
         attrs = []
-        attrs << self.bInterfaceNumber.to_s
+        attrs << self.bAlternateSetting.to_s
         devclass = USB.dev_string(self.bInterfaceClass, self.bInterfaceSubClass, self.bInterfaceProtocol)
         attrs << devclass
         desc = self.description
