@@ -111,9 +111,9 @@ rusb_find_devices(VALUE cUSB)
   return INT2NUM(usb_find_devices());
 }
 
-/* USB.get_busses */
+/* USB.first_bus */
 static VALUE
-rusb_get_busses(VALUE cUSB)
+rusb_first_bus(VALUE cUSB)
 {
   struct usb_bus *bus = usb_get_busses();
   return rusb_bus_make(bus);
@@ -138,8 +138,8 @@ static VALUE rusb_bus_dirname(VALUE v) { return rb_str_new2(get_usb_bus(v)->dirn
 /* USB::Bus#location */
 static VALUE rusb_bus_location(VALUE v) { return UINT2NUM(get_usb_bus(v)->location); }
 
-/* USB::Bus#devices */
-static VALUE rusb_bus_devices(VALUE v) { return rusb_device_make(get_usb_bus(v)->devices); }
+/* USB::Bus#first_device */
+static VALUE rusb_bus_first_device(VALUE v) { return rusb_device_make(get_usb_bus(v)->devices); }
 
 /* -------- USB::Device -------- */
 
@@ -798,14 +798,14 @@ Init_usb()
 
   rb_define_module_function(rb_cUSB, "find_busses", rusb_find_busses, 0);
   rb_define_module_function(rb_cUSB, "find_devices", rusb_find_devices, 0);
-  rb_define_module_function(rb_cUSB, "get_busses", rusb_get_busses, 0);
+  rb_define_module_function(rb_cUSB, "first_bus", rusb_first_bus, 0);
 
   rb_define_method(rb_cUSB_Bus, "revoked?", rusb_bus_revoked_p, 0);
   rb_define_method(rb_cUSB_Bus, "prev", rusb_bus_prev, 0);
   rb_define_method(rb_cUSB_Bus, "next", rusb_bus_next, 0);
   rb_define_method(rb_cUSB_Bus, "dirname", rusb_bus_dirname, 0);
   rb_define_method(rb_cUSB_Bus, "location", rusb_bus_location, 0);
-  rb_define_method(rb_cUSB_Bus, "get_devices", rusb_bus_devices, 0);
+  rb_define_method(rb_cUSB_Bus, "first_device", rusb_bus_first_device, 0);
 
   rb_define_method(rb_cUSB_Device, "revoked?", rusb_device_revoked_p, 0);
   rb_define_method(rb_cUSB_Device, "prev", rusb_device_prev, 0);

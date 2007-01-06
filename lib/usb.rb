@@ -21,7 +21,7 @@ require 'usb.so'
 module USB
   def USB.busses
     result = []
-    bus = USB.get_busses
+    bus = USB.first_bus
     while bus
       result << bus
       bus = bus.next
@@ -35,7 +35,7 @@ module USB
   def USB.interface_descriptors() USB.interfaces.map {|d| d.get_altsettings }.flatten end
 
   def USB.find_bus(n)
-    bus = USB.get_busses
+    bus = USB.first_bus
     while bus
       return bus if n == bus.dirname.to_i
       bus = bus.next
@@ -54,7 +54,7 @@ module USB
 
     def devices
       result = []
-      device = self.get_devices
+      device = self.first_device
       while device
         result << device
         device = device.next
@@ -67,7 +67,7 @@ module USB
     def interface_descriptors() self.interfaces.map {|d| d.get_altsettings }.flatten end
 
     def find_device(n)
-      device = self.get_devices
+      device = self.first_device
       while device
         return device if n == device.filename.to_i
         device = device.next
