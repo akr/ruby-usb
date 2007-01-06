@@ -84,17 +84,26 @@ module USB
   end
 
   def USB.devclass_string(n)
+    # http://www.usb.org/developers/defined_class
     case n
     when USB::USB_CLASS_PER_INTERFACE then return 'ClassPerInterface'
     when USB::USB_CLASS_AUDIO then return 'Audio'
     when USB::USB_CLASS_COMM then return 'Comm'
     when USB::USB_CLASS_HID then return 'HID'
+    when 0x05 then return 'Physical'
+    when USB::USB_CLASS_PTP then return 'Image'
     when USB::USB_CLASS_PRINTER then return 'Printer'
-    when USB::USB_CLASS_PTP then return 'PTP'
     when USB::USB_CLASS_MASS_STORAGE then return 'MassStorage'
     when USB::USB_CLASS_HUB then return 'Hub'
-    when USB::USB_CLASS_DATA then return 'Data'
-    when USB::USB_CLASS_VENDOR_SPEC then return 'Vendor'
+    when USB::USB_CLASS_DATA then return 'CDC-Data'
+    when 0x0b then return 'SmartCard'
+    when 0x0d then return 'ContentSecurity'
+    when 0x0e then return 'Video'
+    when 0xdc then return 'DiagnosticDevice'
+    when 0xe0 then return 'WirelessController'
+    when 0xef then return 'Miscellaneous'
+    when 0xfe then return 'ApplicationSpecific'
+    when USB::USB_CLASS_VENDOR_SPEC then return 'VendorSpecific'
     end
     nil
   end
