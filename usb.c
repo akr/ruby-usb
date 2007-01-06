@@ -119,6 +119,13 @@ rusb_get_busses(VALUE cUSB)
   return rusb_bus_make(bus);
 }
 
+/* USB::Bus#revoked? */
+static VALUE
+rusb_bus_revoked_p(VALUE v)
+{
+  return RTEST(!check_usb_bus(v));
+}
+
 /* USB::Bus#inspect */
 static VALUE
 rusb_bus_inspect(VALUE vbus)
@@ -151,6 +158,13 @@ static VALUE rusb_bus_location(VALUE v) { return UINT2NUM(get_usb_bus(v)->locati
 static VALUE rusb_bus_devices(VALUE v) { return rusb_device_make(get_usb_bus(v)->devices); }
 
 /* -------- USB::Device -------- */
+
+/* USB::Bus#revoked? */
+static VALUE
+rusb_device_revoked_p(VALUE v)
+{
+  return RTEST(!check_usb_device(v));
+}
 
 /* USB::Device#inspect */
 static VALUE
@@ -265,6 +279,13 @@ rusb_device_open(VALUE vdevice)
 
 /* -------- USB::ConfigDescriptor -------- */
 
+/* USB::ConfigDescriptor#revoked? */
+static VALUE
+rusb_confdesc_revoked_p(VALUE v)
+{
+  return RTEST(!check_usb_config_descriptor(v));
+}
+
 /* USB::ConfigDescriptor#inspect */
 static VALUE
 rusb_confdesc_inspect(VALUE vconfig_descriptor)
@@ -318,6 +339,13 @@ rusb_confdesc_interface(VALUE v)
 
 /* -------- USB::Interface -------- */
 
+/* USB::Interface#revoked? */
+static VALUE
+rusb_interface_revoked_p(VALUE v)
+{
+  return RTEST(!check_usb_interface(v));
+}
+
 /* USB::Interface#inspect */
 static VALUE
 rusb_interface_inspect(VALUE v)
@@ -349,6 +377,13 @@ rusb_interface_altsetting(VALUE v)
 }
 
 /* -------- USB::InterfaceDescriptor -------- */
+
+/* USB::InterfaceDescriptor#revoked? */
+static VALUE
+rusb_ifdesc_revoked_p(VALUE v)
+{
+  return RTEST(!check_usb_interface_descriptor(v));
+}
 
 /* USB::InterfaceDescriptor#bLength */
 static VALUE rusb_ifdesc_bLength(VALUE v) { return INT2FIX(get_usb_interface_descriptor(v)->bLength); }
@@ -390,6 +425,13 @@ rusb_ifdesc_endpoint(VALUE v)
 }
 
 /* -------- USB::EndpointDescriptor -------- */
+
+/* USB::EndpointDescriptor#revoked? */
+static VALUE
+rusb_epdesc_revoked_p(VALUE v)
+{
+  return RTEST(!check_usb_endpoint_descriptor(v));
+}
 
 /* USB::EndpointDescriptor#bLength */
 static VALUE rusb_epdesc_bLength(VALUE v) { return INT2FIX(get_usb_endpoint_descriptor(v)->bLength); }
@@ -822,6 +864,7 @@ Init_usb()
   rb_define_module_function(rb_cUSB, "find_devices", rusb_find_devices, 0);
   rb_define_module_function(rb_cUSB, "get_busses", rusb_get_busses, 0);
 
+  rb_define_method(rb_cUSB_Bus, "revoked?", rusb_bus_revoked_p, 0);
   rb_define_method(rb_cUSB_Bus, "inspect", rusb_bus_inspect, 0);
   rb_define_method(rb_cUSB_Bus, "prev", rusb_bus_prev, 0);
   rb_define_method(rb_cUSB_Bus, "next", rusb_bus_next, 0);
@@ -829,6 +872,7 @@ Init_usb()
   rb_define_method(rb_cUSB_Bus, "location", rusb_bus_location, 0);
   rb_define_method(rb_cUSB_Bus, "get_devices", rusb_bus_devices, 0);
 
+  rb_define_method(rb_cUSB_Device, "revoked?", rusb_device_revoked_p, 0);
   rb_define_method(rb_cUSB_Device, "inspect", rusb_device_inspect, 0);
   rb_define_method(rb_cUSB_Device, "prev", rusb_device_prev, 0);
   rb_define_method(rb_cUSB_Device, "next", rusb_device_next, 0);
@@ -854,6 +898,7 @@ Init_usb()
   rb_define_method(rb_cUSB_Device, "config", rusb_device_config, 0);
   rb_define_method(rb_cUSB_Device, "usb_open", rusb_device_open, 0);
 
+  rb_define_method(rb_cUSB_ConfigDescriptor, "revoked?", rusb_confdesc_revoked_p, 0);
   rb_define_method(rb_cUSB_ConfigDescriptor, "inspect", rusb_confdesc_inspect, 0);
   rb_define_method(rb_cUSB_ConfigDescriptor, "bLength", rusb_confdesc_bLength, 0);
   rb_define_method(rb_cUSB_ConfigDescriptor, "bDescriptorType", rusb_confdesc_bDescriptorType, 0);
@@ -865,10 +910,12 @@ Init_usb()
   rb_define_method(rb_cUSB_ConfigDescriptor, "MaxPower", rusb_confdesc_MaxPower, 0);
   rb_define_method(rb_cUSB_ConfigDescriptor, "interface", rusb_confdesc_interface, 0);
 
+  rb_define_method(rb_cUSB_Interface, "revoked?", rusb_interface_revoked_p, 0);
   rb_define_method(rb_cUSB_Interface, "inspect", rusb_interface_inspect, 0);
   rb_define_method(rb_cUSB_Interface, "num_altsetting", rusb_interface_num_altsetting, 0);
   rb_define_method(rb_cUSB_Interface, "altsetting", rusb_interface_altsetting, 0);
 
+  rb_define_method(rb_cUSB_InterfaceDescriptor, "revoked?", rusb_ifdesc_revoked_p, 0);
   rb_define_method(rb_cUSB_InterfaceDescriptor, "bLength", rusb_ifdesc_bLength, 0);
   rb_define_method(rb_cUSB_InterfaceDescriptor, "bDescriptorType", rusb_ifdesc_bDescriptorType, 0);
   rb_define_method(rb_cUSB_InterfaceDescriptor, "bInterfaceNumber", rusb_ifdesc_bInterfaceNumber, 0);
@@ -880,6 +927,7 @@ Init_usb()
   rb_define_method(rb_cUSB_InterfaceDescriptor, "iInterface", rusb_ifdesc_iInterface, 0);
   rb_define_method(rb_cUSB_InterfaceDescriptor, "endpoint", rusb_ifdesc_endpoint, 0);
 
+  rb_define_method(rb_cUSB_EndpointDescriptor, "revoked?", rusb_epdesc_revoked_p, 0);
   rb_define_method(rb_cUSB_EndpointDescriptor, "bLength", rusb_epdesc_bLength, 0);
   rb_define_method(rb_cUSB_EndpointDescriptor, "bDescriptorType", rusb_epdesc_bDescriptorType, 0);
   rb_define_method(rb_cUSB_EndpointDescriptor, "bEndpointAddress", rusb_epdesc_bEndpointAddress, 0);
