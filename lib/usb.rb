@@ -196,18 +196,18 @@ module USB
       if self.revoked?
         "\#<#{self.class} revoked>"
       else
-        "\#<#{self.class}>"
+        "\#<#{self.class} #{self.description}>"
       end
     end
 
-    def configuration
-      return @configuration if defined? @configuration
-      @configuration = self.device.open {|h| h.get_string_simple(self.iConfiguration) }
+    def description
+      return @description if defined? @description
+      @description = self.device.open {|h| h.get_string_simple(self.iConfiguration) }
     end
 
-    def settings() self.interfaces.map {|d| d.altsettings }.flatten end
-
     def bus() self.device.bus end
+
+    def settings() self.interfaces.map {|d| d.altsettings }.flatten end
   end
 
   class Interface
@@ -229,8 +229,13 @@ module USB
         "\#<#{self.class} revoked>"
       else
         devclass = USB.devsubclass_string(self.bInterfaceClass, self.bInterfaceSubClass)
-        "\#<#{self.class} #{devclass}>"
+        "\#<#{self.class} #{devclass} #{self.description}>"
       end
+    end
+
+    def description
+      return @description if defined? @description
+      @description = self.device.open {|h| h.get_string_simple(self.iInterface) }
     end
 
     def bus() self.interface.configuration.device.bus end
