@@ -34,18 +34,25 @@ static VALUE rusb_dev_handle_new(usb_dev_handle *h);
 #define define_usb_struct(c_name, ruby_name) \
   static VALUE rb_cUSB_ ## ruby_name; \
   static st_table *c_name ## _objects; \
-  static void rusb_ ## c_name ## _free(void *p) {} \
-  static VALUE rusb_ ## c_name ## _make(struct usb_ ## c_name *p) \
+  typedef struct { struct usb_ ## c_name *ptr; VALUE parent; } rusb_ ## c_name ## _t; \
+  static void rusb_ ## c_name ## _free(void *p) { \
+    if (p) free(p); \
+  } \
+  static VALUE rusb_ ## c_name ## _make(struct usb_ ## c_name *p, VALUE parent) \
   { \
     VALUE v; \
+    rusb_ ## c_name ## _t *d; \
     if (p == NULL) { return Qnil; } \
     if (st_lookup(c_name ## _objects, (st_data_t)p, (st_data_t *)&v)) \
       return v; \
-    v = Data_Wrap_Struct(rb_cUSB_ ## ruby_name, 0, rusb_ ## c_name ## _free, p); \
+    d = (rusb_ ## c_name ## _t *)xmalloc(sizeof(*d)); \
+    d->ptr = p; \
+    d->parent = parent; \
+    v = Data_Wrap_Struct(rb_cUSB_ ## ruby_name, 0, rusb_ ## c_name ## _free, d); \
     st_add_direct(c_name ## _objects, (st_data_t)p, (st_data_t)v); \
     return v; \
   } \
-  static struct usb_ ## c_name *check_usb_ ## c_name(VALUE v) \
+  static rusb_ ## c_name ## _t *check_usb_ ## c_name(VALUE v) \
   { \
     Check_Type(v, T_DATA); \
     if (RDATA(v)->dfree != rusb_ ## c_name ## _free) { \
@@ -54,14 +61,22 @@ static VALUE rusb_dev_handle_new(usb_dev_handle *h);
     } \
     return DATA_PTR(v); \
   } \
-  static struct usb_ ## c_name *get_usb_ ## c_name(VALUE v) \
+  static rusb_ ## c_name ## _t *get_rusb_ ## c_name(VALUE v) \
   { \
-    struct usb_ ## c_name *p = check_usb_ ## c_name(v); \
-    if (!p) { \
+    rusb_ ## c_name ## _t *d = check_usb_ ## c_name(v); \
+    if (!d) { \
       rb_raise(rb_eArgError, "revoked USB::" #ruby_name); \
     }           \
-    return p; \
-  } 
+    return d; \
+  } \
+  static struct usb_ ## c_name *get_usb_ ## c_name(VALUE v) \
+  { \
+    return get_rusb_ ## c_name(v)->ptr; \
+  } \
+  static VALUE get_usb_ ## c_name ## _parent(VALUE v) \
+  { \
+    return get_rusb_ ## c_name(v)->parent; \
+  }
 
 define_usb_struct(bus, Bus)
 define_usb_struct(device, Device)
@@ -116,7 +131,7 @@ static VALUE
 rusb_first_bus(VALUE cUSB)
 {
   struct usb_bus *bus = usb_get_busses();
-  return rusb_bus_make(bus);
+  return rusb_bus_make(bus, Qnil);
 }
 
 /* USB::Bus#revoked? */
@@ -127,10 +142,10 @@ rusb_bus_revoked_p(VALUE v)
 }
 
 /* USB::Bus#prev */
-static VALUE rusb_bus_prev(VALUE v) { return rusb_bus_make(get_usb_bus(v)->prev); }
+static VALUE rusb_bus_prev(VALUE v) { return rusb_bus_make(get_usb_bus(v)->prev, Qnil); }
 
 /* USB::Bus#next */
-static VALUE rusb_bus_next(VALUE v) { return rusb_bus_make(get_usb_bus(v)->next); }
+static VALUE rusb_bus_next(VALUE v) { return rusb_bus_make(get_usb_bus(v)->next, Qnil); }
 
 /* USB::Bus#dirname */
 static VALUE rusb_bus_dirname(VALUE v) { return rb_str_new2(get_usb_bus(v)->dirname); }
@@ -139,7 +154,7 @@ static VALUE rusb_bus_dirname(VALUE v) { return rb_str_new2(get_usb_bus(v)->dirn
 static VALUE rusb_bus_location(VALUE v) { return UINT2NUM(get_usb_bus(v)->location); }
 
 /* USB::Bus#first_device */
-static VALUE rusb_bus_first_device(VALUE v) { return rusb_device_make(get_usb_bus(v)->devices); }
+static VALUE rusb_bus_first_device(VALUE v) { return rusb_device_make(get_usb_bus(v)->devices, v); }
 
 /* -------- USB::Device -------- */
 
@@ -151,16 +166,16 @@ rusb_device_revoked_p(VALUE v)
 }
 
 /* USB::Device#prev */
-static VALUE rusb_device_prev(VALUE v) { return rusb_device_make(get_usb_device(v)->prev); }
+static VALUE rusb_device_prev(VALUE v) { rusb_device_t *device = get_rusb_device(v); return rusb_device_make(device->ptr->prev, device->parent); }
 
 /* USB::Device#next */
-static VALUE rusb_device_next(VALUE v) { return rusb_device_make(get_usb_device(v)->next); }
+static VALUE rusb_device_next(VALUE v) { rusb_device_t *device = get_rusb_device(v); return rusb_device_make(device->ptr->next, device->parent); }
 
 /* USB::Device#filename */
 static VALUE rusb_device_filename(VALUE v) { return rb_str_new2(get_usb_device(v)->filename); }
 
 /* USB::Device#bus */
-static VALUE rusb_device_bus(VALUE v) { return rusb_bus_make(get_usb_device(v)->bus); }
+static VALUE rusb_device_bus(VALUE v) { return rusb_bus_make(get_usb_device(v)->bus, Qnil); }
 
 /* USB::Device#devnum */
 static VALUE rusb_device_devnum(VALUE v) { return INT2FIX(get_usb_device(v)->devnum); }
@@ -172,11 +187,12 @@ static VALUE rusb_device_num_children(VALUE v) { return INT2FIX(get_usb_device(v
 static VALUE
 rusb_device_children(VALUE vdevice)
 {
-  struct usb_device *device = get_usb_device(vdevice);
+  rusb_device_t *d = get_rusb_device(vdevice);
+  struct usb_device *device = d->ptr;
   int i;
   VALUE children = rb_ary_new2(device->num_children);
   for (i = 0; i < device->num_children; i++)
-    rb_ary_store(children, i, rusb_device_make(device->children[i]));
+    rb_ary_store(children, i, rusb_device_make(device->children[i], d->parent));
   return children;
 }
 
@@ -222,15 +238,15 @@ static VALUE rusb_devdesc_iSerialNumber(VALUE v) { return INT2FIX(get_usb_device
 /* USB::Device#descriptor_bNumConfigurations */
 static VALUE rusb_devdesc_bNumConfigurations(VALUE v) { return INT2FIX(get_usb_device(v)->descriptor.bNumConfigurations); }
 
-/* USB::Device#config */
+/* USB::Device#config_descriptors */
 static VALUE
-rusb_device_config(VALUE vdevice)
+rusb_device_config(VALUE v)
 {
-  struct usb_device *device = get_usb_device(vdevice);
+  struct usb_device *device = get_usb_device(v);
   int i;
   VALUE children = rb_ary_new2(device->descriptor.bNumConfigurations);
   for (i = 0; i < device->descriptor.bNumConfigurations; i++)
-    rb_ary_store(children, i, rusb_config_descriptor_make(&device->config[i]));
+    rb_ary_store(children, i, rusb_config_descriptor_make(&device->config[i], v));
   return children;
 }
 
@@ -251,6 +267,9 @@ rusb_confdesc_revoked_p(VALUE v)
 {
   return RTEST(!check_usb_config_descriptor(v));
 }
+
+/* USB::ConfigDescriptor#device */
+static VALUE rusb_confdesc_device(VALUE v) { return get_rusb_config_descriptor(v)->parent; }
 
 /* USB::ConfigDescriptor#bLength */
 static VALUE rusb_confdesc_bLength(VALUE v) { return INT2FIX(get_usb_config_descriptor(v)->bLength); }
@@ -276,7 +295,7 @@ static VALUE rusb_confdesc_bmAttributes(VALUE v) { return INT2FIX(get_usb_config
 /* USB::ConfigDescriptor#MaxPower */
 static VALUE rusb_confdesc_MaxPower(VALUE v) { return INT2FIX(get_usb_config_descriptor(v)->MaxPower); }
 
-/* USB::ConfigDescriptor#interface */
+/* USB::ConfigDescriptor#interfaces */
 static VALUE
 rusb_confdesc_interfaces(VALUE v)
 {
@@ -284,7 +303,7 @@ rusb_confdesc_interfaces(VALUE v)
   int i;
   VALUE interface = rb_ary_new2(p->bNumInterfaces);
   for (i = 0; i < p->bNumInterfaces; i++)
-    rb_ary_store(interface, i, rusb_interface_make(&p->interface[i]));
+    rb_ary_store(interface, i, rusb_interface_make(&p->interface[i], v));
   return interface;
 }
 
@@ -297,10 +316,13 @@ rusb_interface_revoked_p(VALUE v)
   return RTEST(!check_usb_interface(v));
 }
 
+/* USB::Interface#config_descriptor */
+static VALUE rusb_interface_config_descriptor(VALUE v) { return get_rusb_interface(v)->parent; }
+
 /* USB::Interface#num_altsetting */
 static VALUE rusb_interface_num_altsetting(VALUE v) { return INT2FIX(get_usb_interface(v)->num_altsetting); }
 
-/* USB::Interface#altsetting */
+/* USB::Interface#altsettings */
 static VALUE
 rusb_interface_altsettings(VALUE v)
 {
@@ -308,7 +330,7 @@ rusb_interface_altsettings(VALUE v)
   int i;
   VALUE altsetting = rb_ary_new2(p->num_altsetting);
   for (i = 0; i < p->num_altsetting; i++)
-    rb_ary_store(altsetting, i, rusb_interface_descriptor_make(&p->altsetting[i]));
+    rb_ary_store(altsetting, i, rusb_interface_descriptor_make(&p->altsetting[i], v));
   return altsetting;
 }
 
@@ -320,6 +342,9 @@ rusb_ifdesc_revoked_p(VALUE v)
 {
   return RTEST(!check_usb_interface_descriptor(v));
 }
+
+/* USB::Interface#interface */
+static VALUE rusb_ifdesc_interface(VALUE v) { return get_rusb_interface_descriptor(v)->parent; }
 
 /* USB::InterfaceDescriptor#bLength */
 static VALUE rusb_ifdesc_bLength(VALUE v) { return INT2FIX(get_usb_interface_descriptor(v)->bLength); }
@@ -348,7 +373,7 @@ static VALUE rusb_ifdesc_bInterfaceProtocol(VALUE v) { return INT2FIX(get_usb_in
 /* USB::InterfaceDescriptor#iInterface */
 static VALUE rusb_ifdesc_iInterface(VALUE v) { return INT2FIX(get_usb_interface_descriptor(v)->iInterface); }
 
-/* USB::InterfaceDescriptor#endpoint */
+/* USB::InterfaceDescriptor#endpoints */
 static VALUE
 rusb_ifdesc_endpoints(VALUE v)
 {
@@ -356,7 +381,7 @@ rusb_ifdesc_endpoints(VALUE v)
   int i;
   VALUE endpoint = rb_ary_new2(p->bNumEndpoints);
   for (i = 0; i < p->bNumEndpoints; i++)
-    rb_ary_store(endpoint, i, rusb_endpoint_descriptor_make(&p->endpoint[i]));
+    rb_ary_store(endpoint, i, rusb_endpoint_descriptor_make(&p->endpoint[i], v));
   return endpoint;
 }
 
@@ -368,6 +393,9 @@ rusb_epdesc_revoked_p(VALUE v)
 {
   return RTEST(!check_usb_endpoint_descriptor(v));
 }
+
+/* USB::EndpointDescriptor#interface_descriptor */
+static VALUE rusb_epdesc_interface_descriptor(VALUE v) { return get_rusb_endpoint_descriptor(v)->parent; }
 
 /* USB::EndpointDescriptor#bLength */
 static VALUE rusb_epdesc_bLength(VALUE v) { return INT2FIX(get_usb_endpoint_descriptor(v)->bLength); }
@@ -833,6 +861,7 @@ Init_usb()
   rb_define_method(rb_cUSB_Device, "usb_open", rusb_device_open, 0);
 
   rb_define_method(rb_cUSB_ConfigDescriptor, "revoked?", rusb_confdesc_revoked_p, 0);
+  rb_define_method(rb_cUSB_ConfigDescriptor, "device", rusb_confdesc_device, 0);
   rb_define_method(rb_cUSB_ConfigDescriptor, "bLength", rusb_confdesc_bLength, 0);
   rb_define_method(rb_cUSB_ConfigDescriptor, "bDescriptorType", rusb_confdesc_bDescriptorType, 0);
   rb_define_method(rb_cUSB_ConfigDescriptor, "wTotalLength", rusb_confdesc_wTotalLength, 0);
@@ -844,10 +873,12 @@ Init_usb()
   rb_define_method(rb_cUSB_ConfigDescriptor, "interfaces", rusb_confdesc_interfaces, 0);
 
   rb_define_method(rb_cUSB_Interface, "revoked?", rusb_interface_revoked_p, 0);
+  rb_define_method(rb_cUSB_Interface, "config_descriptor", rusb_interface_config_descriptor, 0);
   rb_define_method(rb_cUSB_Interface, "num_altsetting", rusb_interface_num_altsetting, 0);
   rb_define_method(rb_cUSB_Interface, "altsettings", rusb_interface_altsettings, 0);
 
   rb_define_method(rb_cUSB_InterfaceDescriptor, "revoked?", rusb_ifdesc_revoked_p, 0);
+  rb_define_method(rb_cUSB_InterfaceDescriptor, "interface", rusb_ifdesc_interface, 0);
   rb_define_method(rb_cUSB_InterfaceDescriptor, "bLength", rusb_ifdesc_bLength, 0);
   rb_define_method(rb_cUSB_InterfaceDescriptor, "bDescriptorType", rusb_ifdesc_bDescriptorType, 0);
   rb_define_method(rb_cUSB_InterfaceDescriptor, "bInterfaceNumber", rusb_ifdesc_bInterfaceNumber, 0);
@@ -860,6 +891,7 @@ Init_usb()
   rb_define_method(rb_cUSB_InterfaceDescriptor, "endpoints", rusb_ifdesc_endpoints, 0);
 
   rb_define_method(rb_cUSB_EndpointDescriptor, "revoked?", rusb_epdesc_revoked_p, 0);
+  rb_define_method(rb_cUSB_EndpointDescriptor, "interface_descriptor", rusb_epdesc_interface_descriptor, 0);
   rb_define_method(rb_cUSB_EndpointDescriptor, "bLength", rusb_epdesc_bLength, 0);
   rb_define_method(rb_cUSB_EndpointDescriptor, "bDescriptorType", rusb_epdesc_bDescriptorType, 0);
   rb_define_method(rb_cUSB_EndpointDescriptor, "bEndpointAddress", rusb_epdesc_bEndpointAddress, 0);
