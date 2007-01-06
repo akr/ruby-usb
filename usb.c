@@ -163,6 +163,8 @@ rusb_device_inspect(VALUE vdevice)
     return rb_sprintf("#<%s revoked>", cname);
   }
   str = rb_sprintf("#<%s ", cname);
+  rb_str_cat2(str, device->bus->dirname);
+  rb_str_cat2(str, "/");
   rb_str_cat2(str, device->filename);
   rb_str_cat2(str, ">");
   return str;
@@ -825,7 +827,7 @@ Init_usb()
   rb_define_method(rb_cUSB_Bus, "next", rusb_bus_next, 0);
   rb_define_method(rb_cUSB_Bus, "dirname", rusb_bus_dirname, 0);
   rb_define_method(rb_cUSB_Bus, "location", rusb_bus_location, 0);
-  rb_define_method(rb_cUSB_Bus, "devices", rusb_bus_devices, 0);
+  rb_define_method(rb_cUSB_Bus, "get_devices", rusb_bus_devices, 0);
 
   rb_define_method(rb_cUSB_Device, "inspect", rusb_device_inspect, 0);
   rb_define_method(rb_cUSB_Device, "prev", rusb_device_prev, 0);
