@@ -190,6 +190,8 @@ module USB
     end
 
     def interface_descriptors() self.interfaces.map {|d| d.altsettings }.flatten end
+
+    def bus() self.device.bus end
   end
 
   class Interface
@@ -200,6 +202,9 @@ module USB
         "\#<#{self.class}>"
       end
     end
+
+    def bus() self.config_descriptor.device.bus end
+    def device() self.config_descriptor.device end
   end
 
   class InterfaceDescriptor
@@ -211,6 +216,17 @@ module USB
         "\#<#{self.class} #{devclass}>"
       end
     end
+
+    def bus() self.interface.config_descriptor.device.bus end
+    def device() self.interface.config_descriptor.device end
+    def config_descriptor() self.interface.config_descriptor end
+  end
+
+  class EndpointDescriptor
+    def bus() self.interface_descriptor.interface.config_descriptor.device.bus end
+    def device() self.interface_descriptor.interface.config_descriptor.device end
+    def config_descriptor() self.interface_descriptor.interface.config_descriptor end
+    def interface() self.interface_descriptor.interface end
   end
 
   class DevHandle
