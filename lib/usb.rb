@@ -144,14 +144,35 @@ module USB
       if self.revoked?
         "\#<#{self.class} revoked>"
       else
-        vendor = self.descriptor_idVendor
-        product = self.descriptor_idProduct
+        vendor_id = self.descriptor_idVendor
+        product_id = self.descriptor_idProduct
+        manufacturer = product = serial_number = nil
+        self.open {|h|
+          manufacturer = h.get_string_simple(self.descriptor_iManufacturer) if self.descriptor_iManufacturer != 0
+          product = h.get_string_simple(self.descriptor_iProduct) if self.descriptor_iProduct != 0
+          serial_number = h.get_string_simple(self.descriptor_iSerialNumber) if self.descriptor_iSerialNumber != 0
+        }
+        prod = [manufacturer, product, serial_number].compact.join(" ")
         if self.descriptor_bDeviceClass == USB::USB_CLASS_PER_INTERFACE
           devclass = self.interface_descriptors.map {|i| USB.devsubclass_string(i.bInterfaceClass, i.bInterfaceSubClass) }.join(", ")
         else
           devclass = USB.devsubclass_string(self.descriptor_bDeviceClass, self.descriptor_bDeviceSubClass)
         end
-        "\#<#{self.class} #{self.bus.dirname}/#{self.filename} #{"%04x:%04x" % [vendor, product]} #{devclass}>"
+
+        "\#<#{self.class} #{self.bus.dirname}/#{self.filename} #{"%04x:%04x" % [vendor_id, product_id]} #{prod} (#{devclass})>"
+      end
+    end
+
+    def open
+      h = self.usb_open
+      if block_given?
+        begin
+          r = yield h
+        ensure
+          h.usb_close
+        end
+      else
+        h
       end
     end
 
@@ -189,6 +210,15 @@ module USB
         devclass = USB.devsubclass_string(self.bInterfaceClass, self.bInterfaceSubClass)
         "\#<#{self.class} #{devclass}>"
       end
+    end
+  end
+
+  class DevHandle
+    def get_string_simple(index)
+      result = "\0" * 256
+      self.usb_get_string_simple(index, result)
+      result.delete!("\0")
+      result
     end
   end
 end
