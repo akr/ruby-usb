@@ -76,7 +76,31 @@ module USB
       if self.revoked?
         "\#<#{self.class} revoked>"
       else
-        "\#<#{self.class} #{self.bus.dirname}/#{self.filename}>"
+        case self.descriptor_bDeviceClass
+        when USB::USB_CLASS_PER_INTERFACE
+          devclass = 'ClassPerInterface'
+        when USB::USB_CLASS_AUDIO
+          devclass = 'Audio'
+        when USB::USB_CLASS_COMM
+          devclass = 'Comm'
+        when USB::USB_CLASS_HID
+          devclass = 'HID'
+        when USB::USB_CLASS_PRINTER
+          devclass = 'Printer'
+        when USB::USB_CLASS_PTP
+          devclass = 'PTP'
+        when USB::USB_CLASS_MASS_STORAGE
+          devclass = 'MassStorage'
+        when USB::USB_CLASS_HUB
+          devclass = 'Hub'
+        when USB::USB_CLASS_DATA
+          devclass = 'Data'
+        when USB::USB_CLASS_VENDOR_SPEC
+          devclass = 'Vendor'
+        else
+          devclass = "Unknown(#{self.descriptor_bDeviceClass})"
+        end
+        "\#<#{self.class} #{self.bus.dirname}/#{self.filename} #{devclass}>"
       end
     end
   end
