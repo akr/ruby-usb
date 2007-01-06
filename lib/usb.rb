@@ -29,21 +29,10 @@ module USB
     result.sort_by {|b| b.dirname }
   end
 
-  def USB.devices
-    USB.busses.map {|b| b.devices }.flatten
-  end
-
-  def USB.config_descriptors
-    USB.devices.map {|d| d.get_configs }.flatten
-  end
-
-  def USB.interfaces
-    USB.config_descriptors.map {|d| d.get_interfaces }.flatten
-  end
-
-  def USB.interface_descriptors
-    USB.interfaces.map {|d| d.get_altsettings }.flatten
-  end
+  def USB.devices() USB.busses.map {|b| b.devices }.flatten end
+  def USB.config_descriptors() USB.devices.map {|d| d.config_descriptors }.flatten end
+  def USB.interfaces() USB.config_descriptors.map {|d| d.get_interfaces }.flatten end
+  def USB.interface_descriptors() USB.interfaces.map {|d| d.get_altsettings }.flatten end
 
   def USB.find_bus(n)
     bus = USB.get_busses
@@ -73,17 +62,9 @@ module USB
       result.sort_by {|d| d.filename }
     end
 
-    def config_descriptors
-      self.devices.map {|d| d.get_configs }.flatten
-    end
-
-    def interfaces
-      self.config_descriptors.map {|d| d.get_interfaces }.flatten
-    end
-
-    def interface_descriptors
-      self.interfaces.map {|d| d.get_altsettings }.flatten
-    end
+    def config_descriptors() self.devices.map {|d| d.config_descriptors }.flatten end
+    def interfaces() self.config_descriptors.map {|d| d.get_interfaces }.flatten end
+    def interface_descriptors() self.interfaces.map {|d| d.get_altsettings }.flatten end
 
     def find_device(n)
       device = self.get_devices
@@ -174,13 +155,8 @@ module USB
       end
     end
 
-    def interfaces
-      self.get_configs.map {|c| c.get_interfaces }.flatten
-    end
-
-    def interface_descriptors
-      self.interfaces.map {|i| i.get_altsettings }.flatten
-    end
+    def interfaces() self.config_descriptors.map {|d| d.get_interfaces }.flatten end
+    def interface_descriptors() self.interfaces.map {|d| d.get_altsettings }.flatten end
   end
 
   class ConfigDescriptor

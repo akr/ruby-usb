@@ -829,7 +829,7 @@ Init_usb()
   rb_define_method(rb_cUSB_Device, "descriptor_iProduct", rusb_devdesc_iProduct, 0);
   rb_define_method(rb_cUSB_Device, "descriptor_iSerialNumber", rusb_devdesc_iSerialNumber, 0);
   rb_define_method(rb_cUSB_Device, "descriptor_bNumConfigurations", rusb_devdesc_bNumConfigurations, 0);
-  rb_define_method(rb_cUSB_Device, "get_configs", rusb_device_config, 0);
+  rb_define_method(rb_cUSB_Device, "config_descriptors", rusb_device_config, 0);
   rb_define_method(rb_cUSB_Device, "usb_open", rusb_device_open, 0);
 
   rb_define_method(rb_cUSB_ConfigDescriptor, "revoked?", rusb_confdesc_revoked_p, 0);
