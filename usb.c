@@ -325,9 +325,9 @@ static VALUE rusb_interface_configuration(VALUE v) { return get_rusb_interface(v
 /* USB::Interface#num_altsetting */
 static VALUE rusb_interface_num_altsetting(VALUE v) { return INT2FIX(get_usb_interface(v)->num_altsetting); }
 
-/* USB::Interface#altsettings */
+/* USB::Interface#settings */
 static VALUE
-rusb_interface_altsettings(VALUE v)
+rusb_interface_settings(VALUE v)
 {
   struct usb_interface *p = get_usb_interface(v);
   int i;
@@ -878,7 +878,7 @@ Init_usb()
   rb_define_method(rb_cUSB_Interface, "revoked?", rusb_interface_revoked_p, 0);
   rb_define_method(rb_cUSB_Interface, "configuration", rusb_interface_configuration, 0);
   rb_define_method(rb_cUSB_Interface, "num_altsetting", rusb_interface_num_altsetting, 0);
-  rb_define_method(rb_cUSB_Interface, "altsettings", rusb_interface_altsettings, 0);
+  rb_define_method(rb_cUSB_Interface, "settings", rusb_interface_settings, 0);
 
   rb_define_method(rb_cUSB_Setting, "revoked?", rusb_setting_revoked_p, 0);
   rb_define_method(rb_cUSB_Setting, "interface", rusb_setting_interface, 0);

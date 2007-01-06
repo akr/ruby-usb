@@ -32,7 +32,8 @@ module USB
   def USB.devices() USB.busses.map {|b| b.devices }.flatten end
   def USB.configurations() USB.devices.map {|d| d.configurations }.flatten end
   def USB.interfaces() USB.configurations.map {|d| d.interfaces }.flatten end
-  def USB.settings() USB.interfaces.map {|d| d.altsettings }.flatten end
+  def USB.settings() USB.interfaces.map {|d| d.settings }.flatten end
+  def USB.endpoints() USB.settings.map {|d| d.endpoints }.flatten end
 
   def USB.find_bus(n)
     bus = USB.first_bus
@@ -64,7 +65,8 @@ module USB
 
     def configurations() self.devices.map {|d| d.configurations }.flatten end
     def interfaces() self.configurations.map {|d| d.interfaces }.flatten end
-    def settings() self.interfaces.map {|d| d.altsettings }.flatten end
+    def settings() self.interfaces.map {|d| d.settings }.flatten end
+    def endpoints() self.settings.map {|d| d.endpoints }.flatten end
 
     def find_device(n)
       device = self.first_device
@@ -188,7 +190,8 @@ module USB
     end
 
     def interfaces() self.configurations.map {|d| d.interfaces }.flatten end
-    def settings() self.interfaces.map {|d| d.altsettings }.flatten end
+    def settings() self.interfaces.map {|d| d.settings }.flatten end
+    def endpoints() self.settings.map {|d| d.endpoints }.flatten end
   end
 
   class Configuration
@@ -207,7 +210,8 @@ module USB
 
     def bus() self.device.bus end
 
-    def settings() self.interfaces.map {|d| d.altsettings }.flatten end
+    def settings() self.interfaces.map {|d| d.settings }.flatten end
+    def endpoints() self.settings.map {|d| d.endpoints }.flatten end
   end
 
   class Interface
@@ -221,6 +225,8 @@ module USB
 
     def bus() self.configuration.device.bus end
     def device() self.configuration.device end
+
+    def endpoints() self.settings.map {|d| d.endpoints }.flatten end
   end
 
   class Setting
@@ -244,6 +250,14 @@ module USB
   end
 
   class Endpoint
+    def inspect
+      if self.revoked?
+        "\#<#{self.class} revoked>"
+      else
+        "\#<#{self.class}>"
+      end
+    end
+
     def bus() self.setting.interface.configuration.device.bus end
     def device() self.setting.interface.configuration.device end
     def configuration() self.setting.interface.configuration end
