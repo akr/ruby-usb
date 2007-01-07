@@ -78,6 +78,7 @@ module USB
     end
   end
 
+  # :stopdoc:
   # http://www.usb.org/developers/defined_class
   CLASS_CODES = [
     [0x01, nil, nil, "Audio"],
@@ -148,6 +149,7 @@ module USB
       "Unkonwn(%02x,%02x,%02x)" % [base_class, sub_class, protocol]
     end
   end
+  # :startdoc:
 
   class Device
     def inspect
