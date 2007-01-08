@@ -295,8 +295,8 @@ static VALUE rusb_config_iConfiguration(VALUE v) { return INT2FIX(get_usb_config
 /* USB::Configuration#bmAttributes */
 static VALUE rusb_config_bmAttributes(VALUE v) { return INT2FIX(get_usb_config_descriptor(v)->bmAttributes); }
 
-/* USB::Configuration#MaxPower */
-static VALUE rusb_config_MaxPower(VALUE v) { return INT2FIX(get_usb_config_descriptor(v)->MaxPower); }
+/* USB::Configuration#bMaxPower */
+static VALUE rusb_config_bMaxPower(VALUE v) { return INT2FIX(get_usb_config_descriptor(v)->MaxPower); }
 
 /* USB::Configuration#interfaces */
 static VALUE
@@ -872,7 +872,7 @@ Init_usb()
   rb_define_method(rb_cUSB_Configuration, "bConfigurationValue", rusb_config_bConfigurationValue, 0);
   rb_define_method(rb_cUSB_Configuration, "iConfiguration", rusb_config_iConfiguration, 0);
   rb_define_method(rb_cUSB_Configuration, "bmAttributes", rusb_config_bmAttributes, 0);
-  rb_define_method(rb_cUSB_Configuration, "MaxPower", rusb_config_MaxPower, 0);
+  rb_define_method(rb_cUSB_Configuration, "bMaxPower", rusb_config_bMaxPower, 0);
   rb_define_method(rb_cUSB_Configuration, "interfaces", rusb_config_interfaces, 0);
 
   rb_define_method(rb_cUSB_Interface, "revoked?", rusb_interface_revoked_p, 0);
