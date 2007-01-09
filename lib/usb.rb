@@ -170,6 +170,7 @@ module USB
           devclass = USB.dev_string(self.bDeviceClass, self.bDeviceSubClass, self.bDeviceProtocol)
         end
         attrs << "(#{devclass})"
+        attrs.compact!
         "\#<#{self.class} #{attrs.join(' ')}>"
       end
     end
@@ -328,7 +329,11 @@ module USB
 
     def get_string_simple(index)
       result = "\0" * 256
-      self.usb_get_string_simple(index, result)
+      begin
+        self.usb_get_string_simple(index, result)
+      rescue Errno::EPIPE
+        return nil
+      end
       result.delete!("\0")
       result
     end
