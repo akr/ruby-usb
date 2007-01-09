@@ -328,7 +328,7 @@ module USB
     end
 
     def get_string_simple(index)
-      result = "\0" * 256
+      result = "\0" * 1024
       begin
         self.usb_get_string_simple(index, result)
       rescue Errno::EPIPE
