@@ -178,16 +178,22 @@ module USB
     def manufacturer
       return @manufacturer if defined? @manufacturer
       @manufacturer = self.open {|h| h.get_string_simple(self.iManufacturer) }
+      @manufacturer.strip! if @manufacturer
+      @manufacturer
     end
 
     def product
       return @product if defined? @product
       @product = self.open {|h| h.get_string_simple(self.iProduct) }
+      @product.strip! if @product
+      @product
     end
 
     def serial_number
       return @serial_number if defined? @serial_number
       @serial_number = self.open {|h| h.get_string_simple(self.iSerialNumber) }
+      @serial_number.strip! if @serial_number
+      @serial_number
     end
 
     def open
@@ -331,7 +337,7 @@ module USB
       result = "\0" * 1024
       begin
         self.usb_get_string_simple(index, result)
-      rescue Errno::EPIPE
+      rescue Errno::EPIPE, Errno::EFBIG
         return nil
       end
       result.delete!("\0")
