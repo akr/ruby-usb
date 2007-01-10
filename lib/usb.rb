@@ -18,6 +18,45 @@
 
 require 'usb.so'
 
+# USB module is a binding for libusb.
+#
+# = Example
+#
+# 1. list up USB devices
+#
+#   require 'usb'
+#   require 'pp'
+#   pp USB.devices
+#   #=>
+#   [#<USB::Device 001/001 0000:0000 Linux 2.6.17-2-486 uhci_hcd UHCI Host Controller 0000:00:1d.0 (Full speed Hub)>,
+#    #<USB::Device 002/001 0000:0000 Linux 2.6.17-2-486 uhci_hcd UHCI Host Controller 0000:00:1d.1 (Full speed Hub)>,
+#    #<USB::Device 003/001 0000:0000 Linux 2.6.17-2-486 uhci_hcd UHCI Host Controller 0000:00:1d.2 (Full speed Hub)>,
+#    #<USB::Device 004/001 0000:0000 Linux 2.6.17-2-486 ehci_hcd EHCI Host Controller 0000:00:1d.7 (Hi-speed Hub with single TT)>]
+#
+# 2. find a device by bus id and device id
+#
+#   # find the device "004/001" in the above list.
+#   dev = USB.find_bus(4).find_device(1)
+#   p dev
+#   #=>
+#   #<USB::Device 004/001 0000:0000 Linux 2.6.17-2-486 ehci_hcd EHCI Host Controller 0000:00:1d.7 (Hi-speed Hub with single TT)>
+#
+# 3. open a device
+#
+#   dev.open {|handle| p handle }
+#   #=>
+#   #<USB::DevHandle:0xa7d94688>
+#
+# = USB overview
+#
+# * A host has busses.
+# * A bus has devices.
+# * A device has configurations.
+# * A configuration has interfaces.
+# * A interface has settings.
+# * A setting has endpoints.
+#
+
 module USB
   def USB.busses
     result = []
