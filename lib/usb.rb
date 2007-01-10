@@ -337,7 +337,7 @@ module USB
       result = "\0" * 1024
       begin
         self.usb_get_string_simple(index, result)
-      rescue Errno::EPIPE, Errno::EFBIG
+      rescue Errno::EPIPE, Errno::EFBIG, Errno::EPERM
         return nil
       end
       result.delete!("\0")
