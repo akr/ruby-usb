@@ -1,0 +1,59 @@
+#!/usr/bin/env ruby
+
+# usage: usb-power bus:device port on|off
+#
+# example:
+#   usb-power 004:006 2 on
+#   usb-power 004:006 2 off
+
+require 'usb'
+require 'optparse'
+
+USB_RT_HUB = USB::USB_TYPE_CLASS | USB::USB_RECIP_DEVICE
+USB_RT_PORT = USB::USB_TYPE_CLASS | USB::USB_RECIP_OTHER
+USB_PORT_FEAT_POWER = 8
+USB_PORT_FEAT_INDICATOR = 22
+USB_DIR_IN = 0x80 # to host
+
+COMMAND_SET_NONE  = 0
+COMMAND_SET_LED   = 1
+COMMAND_SET_POWER = 2
+HUB_LED_GREEN = 2
+
+HUB_CHAR_LPSM = 0x0003
+HUB_CHAR_PORTIND = 0x0080
+
+def list_usb2_hub
+  USB.devices.find_all {|d|
+    0x200 <= d.bcdDevice &&
+    d.bDeviceClass == USB::USB_CLASS_HUB
+  }
+end
+
+require 'pp'
+
+def power_on(h, port)
+  h.usb_control_msg(USB_RT_PORT, USB::USB_REQ_SET_FEATURE, USB_PORT_FEAT_POWER, port, "", 0)
+end
+
+def power_off(h, port)
+  h.usb_control_msg(USB_RT_PORT, USB::USB_REQ_CLEAR_FEATURE, USB_PORT_FEAT_POWER, port, "", 0)
+end
+
+bus_device = ARGV.shift
+port = ARGV.shift.to_i
+on_off = ARGV.shift
+
+/:/ =~ bus_device
+bus = $`.to_i
+device = $'.to_i
+
+USB.find_bus(bus).find_device(device).open {|h|
+  if on_off == 'off'
+    power_off(h, port)
+  else
+    power_on(h, port)
+  end
+}
+
+# USB.devices[4].open {|h| power_off(h, 4) }
