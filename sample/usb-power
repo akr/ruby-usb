@@ -1,10 +1,10 @@
 #!/usr/bin/env ruby
 
-# usage: usb-power bus:device port on|off
+# usage: usb-power bus/device port on|off
 #
 # example:
-#   usb-power 004:006 2 on
-#   usb-power 004:006 2 off
+#   usb-power 004/006 2 on
+#   usb-power 004/006 2 off
 
 require 'usb'
 require 'optparse'
@@ -33,7 +33,7 @@ bus_device = ARGV.shift
 port = ARGV.shift.to_i
 on_off = ARGV.shift
 
-/:/ =~ bus_device
+%r{/} =~ bus_device
 bus = $`.to_i
 device = $'.to_i
 
