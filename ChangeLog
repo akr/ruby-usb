@@ -1,3 +1,7 @@
 2007-01-10  Tanaka Akira  <akr@fsij.org>
 
+	* lib/usb.rb (USB.each_device_by_class): new method.
+
+2007-01-10  Tanaka Akira  <akr@fsij.org>
+
 	* ruby-usb 0.1 released.

@@ -83,6 +83,37 @@ module USB
     return nil
   end
 
+  # searches devices by USB class, subclass and protocol.
+  #
+  #   # find hubs.
+  #   USB.each_device_by_class(USB::USB_CLASS_HUB) {|d| p d }'
+  #
+  #   # find Full speed Hubs
+  #   USB.each_device_by_class(USB::USB_CLASS_HUB, 0, 0) {|d| p d }'
+  #
+  #   # find Hi-speed Hubs with single TT
+  #   USB.each_device_by_class(USB::USB_CLASS_HUB, 0, 1) {|d| p d }'
+  #
+  #   # find Hi-speed Hubs with multiple TT
+  #   USB.each_device_by_class(USB::USB_CLASS_HUB, 0, 2) {|d| p d }'
+  #
+  def USB.each_device_by_class(devclass, subclass=nil, protocol=nil)
+    USB.devices.each {|dev|
+      if dev.bDeviceClass == USB::USB_CLASS_PER_INTERFACE
+        found = dev.settings.any? {|s|
+                  s.bInterfaceClass == devclass &&
+                  (!subclass || s.bInterfaceSubClass == subclass) &&
+                  (!protocol || s.bInterfaceProtocol == protocol) }
+      else
+        found = dev.bDeviceClass == devclass &&
+                (!subclass || dev.bDeviceSubClass == subclass) &&
+                (!protocol || dev.bDeviceProtocol == protocol)
+      end
+      yield dev if found
+    }
+    nil
+  end
+
   class Bus
     def inspect
       if self.revoked?
