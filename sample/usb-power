@@ -44,5 +44,3 @@ USB.find_bus(bus).find_device(device).open {|h|
     power_on(h, port)
   end
 }
-
-# USB.devices[4].open {|h| power_off(h, 4) }
