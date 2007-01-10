@@ -83,7 +83,7 @@ module USB
     return nil
   end
 
-  # searches devices by USB class, subclass and protocol.
+  # searches devices by USB device class, subclass and protocol.
   #
   #   # find hubs.
   #   USB.each_device_by_class(USB::USB_CLASS_HUB) {|d| p d }'
