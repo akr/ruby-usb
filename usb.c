@@ -19,6 +19,7 @@
 */
 
 #include "ruby.h"
+#include "st.h"
 #include <usb.h>
 #include <errno.h>
 

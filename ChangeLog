@@ -1,3 +1,8 @@
+2007-01-21  Tanaka Akira  <akr@fsij.org>
+
+	* usb.c: include st.h.
+	  fix a compile error on MacOS X reported by Tony Buser.
+
 2007-01-10  Tanaka Akira  <akr@fsij.org>
 
 	* lib/usb.rb (USB.each_device_by_class): new method.
