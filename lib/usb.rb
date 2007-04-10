@@ -20,6 +20,9 @@ require 'usb.so'
 
 # USB module is a binding for libusb.
 #
+# It needs appropriate privilege to access USB.
+# For example, the process should be an member of plugdev group on Debin GNU/Linux (etch).
+#
 # = Example
 #
 # 1. list up USB devices
