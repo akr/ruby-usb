@@ -1,0 +1,50 @@
+= ruby-usb - libusb binding for Ruby
+
+ruby-usb is a libusb binding library for Ruby.
+
+== Author
+
+Tanaka Akira <akr@fsij.org>
+
+== Home Page
+
+http://www.a-k-r.org/ruby-usb/
+
+== License
+
+LGPL
+
+== Feature
+
+* direct (non-rubyish) binding
+* rubyish interface (work in progress)
+
+== Requirements
+
+* ruby : http://www.ruby-lang.org/
+* libusb 0.1 : http://libusb.sourceforge.net/
+
+== Download
+
+* latest release: http://www.a-k-r.org/ruby-usb/ruby-usb-0.1.tar.gz
+
+* development version in Subversion repository:
+
+    % svn co svn://svn@svn.a-k-r.org/akr/ruby-usb/trunk ruby-usb
+
+== Install
+
+  % ruby extconf.rb 
+  % make
+  % make install
+
+== Reference Manual
+
+See rdoc/ or
+http://www.a-k-r.org/ruby-usb/rdoc/
+
+== See Also
+
+* USB.org : http://www.usb.org/
+* AC Power Control through USB : http://www.gniibe.org/ac-power-by-usb/ac-power-control.html
+* How To Control USB Missile Launcher on Linux : http://blog.taragana.com/index.php/archive/how-to-control-usb-missile-launcher-on-linux/
