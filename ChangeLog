@@ -1,3 +1,7 @@
+2008-04-12  Tanaka Akira  <akr@fsij.org>
+
+	* ruby-usb 0.2 released.
+
 2007-01-21  Tanaka Akira  <akr@fsij.org>
 
 	* usb.c: include st.h.
