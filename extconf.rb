@@ -24,5 +24,6 @@
 require 'mkmf'
 
 have_library("usb", "usb_init")
+have_header("ruby/st.h")
 
 create_makefile('usb')

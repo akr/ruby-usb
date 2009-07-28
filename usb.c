@@ -19,7 +19,11 @@
 */
 
 #include "ruby.h"
+#ifdef HAVE_RUBY_ST_H
+#include "ruby/st.h"
+#else
 #include "st.h"
+#endif
 #include <usb.h>
 #include <errno.h>
 
