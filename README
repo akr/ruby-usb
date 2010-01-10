@@ -28,9 +28,7 @@ LGPL
 
 * latest release: http://www.a-k-r.org/ruby-usb/ruby-usb-0.2.tar.gz
 
-* development version in Subversion repository:
-
-    % svn co svn://svn@svn.a-k-r.org/akr/ruby-usb/trunk ruby-usb
+* development version: http://github.com/akr/ruby-usb
 
 == Install
 
