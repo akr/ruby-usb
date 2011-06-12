@@ -930,6 +930,6 @@ Init_usb()
   rb_define_method(rb_cUSB_DevHandle, "usb_get_driver_np", rusb_get_driver_np, 2);
 #endif
 #ifdef LIBUSB_HAS_DETACH_KERNEL_DRIVER_NP
-  rb_define_method(rb_cUSB_DevHandle, "usb_detach_kernel_driver_np", rusb_detach_kernel_driver_np, 2);
+  rb_define_method(rb_cUSB_DevHandle, "usb_detach_kernel_driver_np", rusb_detach_kernel_driver_np, 1);
 #endif
 }
